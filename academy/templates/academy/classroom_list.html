@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="bi bi-door-open"></i> Dars xonalari</h3>
+    <a href="{% url 'classroom_add' %}" class="btn btn-success"><i class="bi bi-plus-lg"></i> Yangi xona</a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Xona nomi</th>
+                    <th>Sig'imi (talaba)</th>
+                    {% if user.is_staff or user.role == 'admin' %}
+                    <th class="text-end">Amallar</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for room in rooms %}
+                <tr>
+                    <td class="fw-bold">{{ room.number }}</td>
+                    <td>{{ room.capacity }} kishi</td>
+                    {% if user.is_staff or user.role == 'admin' %}
+                    <td class="text-end">
+                        <a href="{% url 'classroom_edit' room.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'classroom_delete' room.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center py-4">Xonalar hali qo'shilmagan.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

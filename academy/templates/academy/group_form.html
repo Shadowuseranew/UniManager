@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Yangi Guruh Qo'shish{% endblock %}
+
+{% block content %}
+<div class="container py-2">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'group_list' %}" class="text-decoration-none">Guruhlar</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Yangi guruh</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="card-title mb-0 fw-bold">
+                        <i class="bi bi-people-fill text-primary me-2"></i> Yangi Guruh Yaratish
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-secondary">
+                                    {{ field.label }}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <div class="form-text text-muted small">{{ field.help_text }}</div>
+                                {% endif %}
+                                {% if field.errors %}
+                                    {% for error in field.errors %}
+                                        <div class="text-danger small mt-1">
+                                            <i class="bi bi-exclamation-circle me-1"></i> {{ error }}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        <hr class="my-4 text-muted opacity-25">
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'group_list' %}" class="btn btn-light px-4">
+                                Bekor qilish
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                                <i class="bi bi-check-lg me-1"></i> Guruhni saqlash
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="alert alert-info mt-4 border-0 shadow-sm" role="alert" style="background-color: #e3f2fd;">
+                <h6 class="alert-heading fw-bold"><i class="bi bi-info-circle me-2"></i> Eslatma</h6>
+                <p class="mb-0 small text-secondary">
+                    Guruh yaratilgandan so'ng, unga talabalarni admin panel yoki profil sozlamalari orqali biriktirishingiz mumkin.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

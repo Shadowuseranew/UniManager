@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <h2 class="fw-bold text-primary"><i class="fas fa-calendar-alt"></i> Dars Jadvali</h2>
+        </div>
+        <div class="col-md-6">
+            <form method="get" class="d-flex justify-content-end">
+                <label class="me-2 mt-1 fw-bold">Guruhni tanlang:</label>
+                <select name="group" class="form-select w-50" onchange="this.form.submit()">
+                    <option value="">Barcha guruhlar</option>
+                    {% for g in groups %}
+                        <option value="{{ g.id }}" {% if selected_group == g.id|stringformat:"s" %}selected{% endif %}>
+                            {{ g.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <hr>
+
+    {% regroup timetables by get_day_of_week_display as day_list %}
+
+    <div class="row">
+        {% for day in day_list %}
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow border-0">
+                    <div class="card-header bg-dark text-white py-3">
+                        <h5 class="card-title mb-0"><i class="far fa-clock"></i> {{ day.grouper }}</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Vaqt</th>
+                                        <th>Fan va O'qituvchi</th>
+                                        <th>Xona</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in day.list %}
+                                    <tr>
+                                        <td class="text-nowrap">
+                                            <span class="badge bg-outline-primary text-primary border border-primary">
+                                                {{ entry.start_time|time:"H:i" }} - {{ entry.end_time|time:"H:i" }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold">{{ entry.subject.name }}</div>
+                                            <small class="text-muted">{{ entry.teacher.get_full_name|default:entry.teacher.username }}</small>
+                                            <div class="small text-primary d-block d-sm-none">Guruh: {{ entry.group.name }}</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info text-dark">
+                                                {{ entry.classroom.number }}
+                                                <small>({{ entry.classroom.get_room_type_display }})</small>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center py-5">
+                    <i class="fas fa-info-circle fa-3x mb-3"></i>
+                    <h4>Darslar topilmadi</h4>
+                    <p>Tanlangan guruh uchun dars jadvali hali shakllantirilmagan yoki bazada ma'lumot yo'q.</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

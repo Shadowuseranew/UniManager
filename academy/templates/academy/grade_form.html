@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3><i class="bi bi-pencil-square"></i> {{ subject.name }} - Baholash Jurnali</h3>
+
+<form method="post">
+    {% csrf_token %}
+    <table class="table table-bordered mt-4">
+        <thead class="table-dark">
+            <tr>
+                <th>Talaba</th>
+                <th>Guruh</th>
+                <th>Joriy Ball</th>
+                <th>Yangi Ball (0-100)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for en in enrollments %}
+            <tr>
+                <td>{{ en.student.get_full_name }}</td>
+                <td>{{ en.student.student_profile.student_id }}</td>
+                <td class="text-center">
+                    <span class="badge bg-primary">
+                        {% for g in en.student.grade_set.all %}
+                            {% if g.subject == subject %}{{ g.score }}{% endif %}
+                        {% endfor %}
+                    </span>
+                </td>
+                <td>
+                    <input type="number" name="grade_{{ en.student.id }}" 
+                           class="form-control" min="0" max="100" step="0.1">
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-success">Saqlash</button>
+</form>
+{% endblock %}

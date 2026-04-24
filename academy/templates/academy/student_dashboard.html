@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4"><i class="bi bi-mortarboard"></i> Mening o'zlashtirish ko'rsatkichlarim</h3>
+
+    <div class="row">
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm border-0 p-3">
+                <h5 class="card-title">Fanlar bo'yicha o'zlashtirish (Ballar)</h5>
+                
+                <canvas id="gradesChart" 
+                    data-labels='[{% for item in subject_data %}"{{ item.subject|escapejs }}"{% if not forloop.last %},{% endif %}{% endfor %}]'
+                    data-grades='[{% for item in subject_data %}{{ item.grade|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}]'
+                    data-atts='[{% for item in subject_data %}{{ item.attendance_percent|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}]'
+                    width="400" height="200">
+                </canvas>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 p-3 bg-primary text-white mb-3">
+                <h6>O'rtacha ball:</h6>
+                <h2 id="avgGrade">0</h2>
+            </div>
+            <div class="card shadow-sm border-0 p-3 bg-success text-white">
+                <h6>Umumiy davomat:</h6>
+                <h2 id="avgAttendance">0%</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <table class="table mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fan nomi</th>
+                            <th>Joriy ball</th>
+                            <th>Davomat foizi</th>
+                            <th>Holat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in subject_data %}
+                        <tr>
+                            <td>{{ item.subject }}</td>
+                            <td><span class="badge bg-info text-dark">{{ item.grade }}</span></td>
+                            <td>
+                                <div class="progress" style="height: 10px; width: 100px;">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="--progress-width: {{ item.attendance_percent }}%; width: var(--progress-width);">
+                                    </div>
+                                </div>
+                                <small>{{ item.attendance_percent }}%</small>
+                            </td>
+                            <td>
+                                {% if item.grade >= 60 %}
+                                    <span class="text-success"><i class="bi bi-check-circle-fill"></i> O'tgan</span>
+                                {% else %}
+                                    <span class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Past</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const chartEl = document.getElementById('gradesChart');
+        if (!chartEl) return;
+
+        try {
+            // HTML atributlaridan xavfsiz o'qib olish
+            const labels = JSON.parse(chartEl.getAttribute('data-labels') || '[]');
+            const grades = JSON.parse(chartEl.getAttribute('data-grades') || '[]');
+            const atts = JSON.parse(chartEl.getAttribute('data-atts') || '[]');
+
+            const ctx = chartEl.getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'To\'plangan ball',
+                        data: grades,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: { 
+                        y: { beginAtZero: true, max: 100 } 
+                    }
+                }
+            });
+
+            // Statistika hisoblash
+            if (grades.length > 0) {
+                const avgGrade = (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(1);
+                document.getElementById('avgGrade').innerText = avgGrade;
+            }
+            
+            if (atts.length > 0) {
+                const avgAtt = (atts.reduce((a, b) => a + b, 0) / atts.length).toFixed(0);
+                document.getElementById('avgAttendance').innerText = avgAtt + '%';
+            }
+        } catch (e) {
+            console.error("Chart ma'lumotlarini yuklashda xato:", e);
+        }
+    });
+</script>
+{% endblock %}

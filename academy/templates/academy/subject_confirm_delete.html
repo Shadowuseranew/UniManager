@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card shadow-sm border-0 col-md-6 mx-auto mt-5">
+    <div class="card-body text-center">
+        <h4 class="text-danger"><i class="bi bi-exclamation-triangle"></i> Rostdan ham o'chirmoqchimisiz?</h4>
+        <p>"<strong>{{ subject.name }}</strong>" fani butunlay o'chirib tashlanadi.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger px-4">Ha, o'chirilsin</button>
+            <a href="{% url 'subject_list' %}" class="btn btn-light px-4">Bekor qilish</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

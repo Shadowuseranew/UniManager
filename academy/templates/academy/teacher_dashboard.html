@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3 class="mb-4"><i class="bi bi-person-workspace"></i> O'qituvchi ish joyi</h3>
+
+<div class="row">
+    {% for lesson in lessons %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-0 border-start border-primary border-4">
+            <div class="card-body">
+                <h5 class="card-title text-primary">{{ lesson.subject.name }}</h5>
+                <p class="card-text mb-1"><strong>Guruh:</strong> {{ lesson.group_name }}</p>
+                <p class="card-text mb-1 text-muted">
+                    <i class="bi bi-clock"></i> {{ lesson.get_day_display }}, {{ lesson.start_time|time:"H:i" }}
+                </p>
+                <p class="card-text mb-3 text-muted">
+                    <i class="bi bi-geo-alt"></i> Xona: {{ lesson.classroom.number }}
+                </p>
+                <a href="{% url 'journal_view' lesson.id %}" class="btn btn-primary w-100">
+                    <i class="bi bi-journal-check"></i> Jurnalni ochish
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">Sizga hali darslar biriktirilmagan.</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

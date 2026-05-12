@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-dark"><i class="bi bi-calendar2-month me-2 text-primary"></i> Semestrlar</h3>
+        <a href="{% url 'semester_add' %}" class="btn btn-primary shadow-sm border-0 px-4">
+            <i class="bi bi-plus-circle me-1"></i> Yangi semestr
+        </a>
+    </div>
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nomi</th>
+                        <th>O'quv yili</th>
+                        <th>Boshlanish</th>
+                        <th>Tugash</th>
+                        <th>Faol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in semesters %}
+                    <tr>
+                        <td class="fw-semibold">{{ s.name }}</td>
+                        <td>{{ s.academic_year.name|default:"-" }}</td>
+                        <td>{{ s.start_date|date:"d.m.Y" }}</td>
+                        <td>{{ s.end_date|date:"d.m.Y" }}</td>
+                        <td>
+                            {% if s.is_active %}
+                                <span class="badge bg-success">Ha</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Yo'q</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center py-4 text-muted">Hali semestr qo'shilmagan</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

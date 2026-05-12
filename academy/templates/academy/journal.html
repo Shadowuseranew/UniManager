@@ -4,14 +4,14 @@
 <div class="card shadow-sm border-0">
     <div class="card-header bg-primary text-white p-3">
         <h4 class="mb-0"><i class="bi bi-journal-check"></i> Jurnal: {{ lesson.subject.name }}</h4>
-        <small>{{ lesson.group_name }} guruhi | Xona: {{ lesson.classroom.number }}</small>
+        <small>{{ lesson.group.name }} guruhi | Xona: {{ lesson.classroom.number }}</small>
     </div>
     <div class="card-body">
         <form method="post">
             {% csrf_token %}
             <div class="mb-3 col-md-3">
                 <label class="form-label fw-bold">Dars sanasi:</label>
-                <input type="date" name="lesson_date" value="{{ today|date:'Y-m-d' }}" class="form-control">
+                <input type="date" name="lesson_date" value="{{ default_date|date:'Y-m-d' }}" class="form-control">
             </div>
 
             <table class="table table-hover align-middle">
@@ -31,9 +31,9 @@
                         </td>
                         <td>
                             <select name="attendance_{{ en.student.id }}" class="form-select form-select-sm border-2">
-                                <option value="present" class="text-success">Bor</option>
-                                <option value="absent" class="text-danger">Yo'q</option>
-                                <option value="late" class="text-warning">Kechikdi</option>
+                                <option value="present" class="text-success"{% if en.attendance_status == 'present' %} selected{% endif %}>Bor</option>
+                                <option value="absent" class="text-danger"{% if en.attendance_status == 'absent' %} selected{% endif %}>Yo'q</option>
+                                <option value="late" class="text-warning"{% if en.attendance_status == 'late' %} selected{% endif %}>Kechikdi</option>
                             </select>
                         </td>
                         <td>

@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid py-4">
+    <h3 class="fw-bold text-dark mb-4"><i class="bi bi-speedometer2 text-primary me-2"></i>Boshqaruv Paneli</h3>
+
+    {% if user.role == 'admin' %}
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100">
+                <div class="text-primary fs-1 mb-2"><i class="bi bi-people"></i></div>
+                <h4 class="fw-bold mb-0">{{ students_count }}</h4>
+                <small class="text-muted">Talabalar</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100">
+                <div class="text-success fs-1 mb-2"><i class="bi bi-person-badge"></i></div>
+                <h4 class="fw-bold mb-0">{{ teachers_count }}</h4>
+                <small class="text-muted">O'qituvchilar</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100">
+                <div class="text-warning fs-1 mb-2"><i class="bi bi-book"></i></div>
+                <h4 class="fw-bold mb-0">{{ subjects_count }}</h4>
+                <small class="text-muted">Fanlar</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100">
+                <div class="text-info fs-1 mb-2"><i class="bi bi-diagram-3"></i></div>
+                <h4 class="fw-bold mb-0">{{ groups_count }}</h4>
+                <small class="text-muted">Guruhlar</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100">
+                <div class="text-danger fs-1 mb-2"><i class="bi bi-credit-card"></i></div>
+                <h4 class="fw-bold mb-0">{{ pending_payments }}</h4>
+                <small class="text-muted">Kutilayotgan to'lov</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100">
+                <div class="text-secondary fs-1 mb-2"><i class="bi bi-calendar-check"></i></div>
+                <h4 class="fw-bold mb-0">{{ today_lessons }}</h4>
+                <small class="text-muted">Bugungi darslar</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-bar-chart me-2 text-primary"></i> Fanlar bo'yicha o'rtacha baho</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="gradeChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-pie-chart me-2 text-success"></i> Davomat</h5>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <canvas id="attChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-check-circle me-2 text-info"></i> Umumiy</h5>
+                </div>
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <div class="display-3 fw-bold text-primary">{{ att_percent }}%</div>
+                    <small class="text-muted">Davomat foizi</small>
+                    <div class="mt-2">
+                        <span class="badge bg-success me-1">{{ today_att.p }} Bor</span>
+                        <span class="badge bg-danger me-1">{{ today_att.a }} Yo'q</span>
+                        <span class="badge bg-warning text-dark">{{ today_att.l }} Kechikdi</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% elif user.role == 'teacher' %}
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+                <div class="text-success fs-1 mb-2"><i class="bi bi-diagram-3"></i></div>
+                <h4 class="fw-bold mb-0">{{ my_groups_count }}</h4>
+                <small class="text-muted">Guruhlarim</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+                <div class="text-primary fs-1 mb-2"><i class="bi bi-book"></i></div>
+                <h4 class="fw-bold mb-0">{{ my_subjects_count }}</h4>
+                <small class="text-muted">Fanlarim</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+                <div class="text-warning fs-1 mb-2"><i class="bi bi-people"></i></div>
+                <h4 class="fw-bold mb-0">{{ my_students_count }}</h4>
+                <small class="text-muted">Talabalarim</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+                <div class="text-info fs-1 mb-2"><i class="bi bi-calendar-check"></i></div>
+                <h4 class="fw-bold mb-0">{{ today_lessons }}</h4>
+                <small class="text-muted">Bugungi darslar</small>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-bar-chart me-2 text-primary"></i> Fanlar bo'yicha o'rtacha baho</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="gradeChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-pie-chart me-2 text-success"></i> Davomat</h5>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <canvas id="attChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-check-circle me-2 text-info"></i> Natijalar</h5>
+                </div>
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <div class="display-3 fw-bold text-success">{{ grade_avg }}</div>
+                    <small class="text-muted">O'rtacha baho</small>
+                    <div class="mt-2 display-6 fw-bold text-info">{{ att_percent }}%</div>
+                    <small class="text-muted">Davomat foizi</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% elif user.role == 'student' %}
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+                <div class="text-primary fs-1 mb-2"><i class="bi bi-journal-text"></i></div>
+                <h4 class="fw-bold mb-0">{{ enrollments_count }}</h4>
+                <small class="text-muted">Yozilgan fanlar</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+                <div class="text-success fs-1 mb-2"><i class="bi bi-star"></i></div>
+                <h4 class="fw-bold mb-0">{{ grade_avg }}</h4>
+                <small class="text-muted">O'rtacha baho</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+                <div class="text-info fs-1 mb-2"><i class="bi bi-calendar-check"></i></div>
+                <h4 class="fw-bold mb-0">{{ today_lessons }}</h4>
+                <small class="text-muted">Bugungi darslar</small>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-bar-chart me-2 text-primary"></i> Baholarim</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="gradeChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-pie-chart me-2 text-success"></i> Davomatim</h5>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <canvas id="attChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-check-circle me-2 text-info"></i> Natijam</h5>
+                </div>
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <div class="display-3 fw-bold text-success">{{ att_percent }}%</div>
+                    <small class="text-muted">Davomat foizi</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+const textColor = isDark ? '#e0e0e0' : '#666';
+
+{% if subject_grades %}
+new Chart(document.getElementById('gradeChart'), {
+    type: 'bar',
+    data: {
+        labels: [{% for g in subject_grades %}'{{ g.subject__name|escapejs }}',{% endfor %}],
+        datasets: [{
+            label: 'O\'rtacha baho',
+            data: [{% for g in subject_grades %}{{ g.avg }},{% endfor %}],
+            backgroundColor: 'rgba(52, 152, 219, 0.7)',
+            borderColor: 'rgba(52, 152, 219, 1)',
+            borderWidth: 1,
+            borderRadius: 6,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { color: textColor } },
+            x: { ticks: { color: textColor, maxRotation: 45 } }
+        }
+    }
+});
+{% endif %}
+
+{% if today_att or att_percent > 0 %}
+new Chart(document.getElementById('attChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Bor', "Yo'q", 'Kechikdi'],
+        datasets: [{
+            data: [
+                {{ today_att.p|default:att_percent }},
+                {{ today_att.a|default:100|add:"-att_percent" }},
+                {{ today_att.l|default:0 }}
+            ],
+            backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'bottom', labels: { color: textColor } }
+        }
+    }
+});
+{% endif %}
+</script>
+{% endblock %}

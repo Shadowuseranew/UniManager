@@ -11,7 +11,7 @@ def create_user_profile(sender, instance, created, **kwargs):
         Student.objects.create(
             user=instance,
             student_id=f"ST-{instance.username}", # Avtomatik ID berish
-            phone_number=instance.phone_number
+            phone_number=instance.phone_number or ''
         )
 
 @receiver(post_save, sender=User)

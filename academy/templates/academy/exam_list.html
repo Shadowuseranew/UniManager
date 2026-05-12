@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="bi bi-pencil-square"></i> Imtihonlar</h3>
+    {% if user.role == 'admin' %}
+    <a href="{% url 'exam_add' %}" class="btn btn-success"><i class="bi bi-plus-lg"></i> Yangi imtihon</a>
+    {% endif %}
+</div>
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Fan</th>
+                    <th>Guruh</th>
+                    <th>Tur</th>
+                    <th>Sana</th>
+                    <th>Vaqt</th>
+                    <th>Max ball</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in exams %}
+                <tr>
+                    <td>{{ e.subject.name }}</td>
+                    <td>{{ e.group.name }}</td>
+                    <td><span class="badge bg-info">{{ e.get_exam_type_display }}</span></td>
+                    <td>{{ e.date|date:"d.m.Y" }}</td>
+                    <td>{{ e.start_time|time:"H:i" }} - {{ e.end_time|time:"H:i" }}</td>
+                    <td>{{ e.max_score }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center py-4">Imtihonlar topilmadi.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -37,10 +37,11 @@
                     <a href="{% url 'subject_edit' s.pk %}" class="btn btn-sm btn-info text-white">
                         <i class="bi bi-pencil"></i>
                     </a>
-                    
+                    {% if user.role == 'admin' %}
                     <a href="{% url 'subject_delete' s.pk %}" class="btn btn-sm btn-danger">
                         <i class="bi bi-trash"></i>
                     </a>
+                    {% endif %}
                 </td>
                 {% endif %}
 

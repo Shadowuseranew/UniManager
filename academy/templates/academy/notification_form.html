@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white"><h5 class="mb-0">Xabar jo'natish</h5></div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Qabul qiluvchi</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn btn-outline-primary btn-sm recipient-btn active" data-value="all_students" onclick="selectRecipient('all_students')">Barcha talabalar</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm recipient-btn" data-value="all_teachers" onclick="selectRecipient('all_teachers')">Barcha o'qituvchilar</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm recipient-btn" data-value="everyone" onclick="selectRecipient('everyone')">Hamma uchun</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm recipient-btn" data-value="by_group" onclick="selectRecipient('by_group')">Guruh bo'yicha</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm recipient-btn" data-value="single" onclick="selectRecipient('single')">Tanlab</button>
+                        </div>
+                        <input type="hidden" name="recipient_group" id="recipient_group" value="all_students">
+                    </div>
+                    <div class="mb-3" id="group_field" style="display:none;">
+                        <label class="form-label fw-bold">Guruhlarni tanlang</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            {% for g in groups %}
+                            <label class="btn btn-outline-secondary btn-sm group-chip" style="cursor:pointer;">
+                                <input type="checkbox" name="group_ids" value="{{ g.id }}" onchange="this.parentElement.classList.toggle('active')"> {{ g.name }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mb-3" id="single_recipient_field" style="display:none;">
+                        <label class="form-label fw-bold">Qabul qiluvchilarni tanlang</label>
+                        <div class="mb-2 d-flex gap-2">
+                            <input type="text" id="userSearch" class="form-control" placeholder="Qidirish..." oninput="filterUsers()">
+                            <select id="roleFilter" class="form-select w-auto" onchange="filterUsers()">
+                                <option value="">Barcha rollar</option>
+                                <option value="admin">Admin</option>
+                                <option value="teacher">O'qituvchi</option>
+                                <option value="student">Talaba</option>
+                            </select>
+                        </div>
+                        <div class="d-flex gap-2 mb-2">
+                            <button type="button" class="btn btn-sm btn-outline-success" onclick="selectAllVisible()">Barchasini tanlash</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll()">Bekor qilish</button>
+                            <span id="selectedCount" class="btn btn-sm btn-light ms-auto">Tanlangan: 0</span>
+                        </div>
+                        <div style="max-height: 250px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; padding: 8px;">
+                            {% for u in all_users %}
+                            <label class="user-item d-flex align-items-center gap-2 py-1 px-2 rounded" data-role="{{ u.role }}" data-name="{{ u.get_full_name|default:u.username }} {{ u.username }}" style="cursor:pointer;user-select:none;">
+                                <input type="checkbox" name="recipients" value="{{ u.id }}" class="user-checkbox" onchange="updateCount()">
+                                <span>{{ u.get_full_name|default:u.username }}</span>
+                                <small class="text-muted ms-auto">{{ u.get_role_display }}</small>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Sarlavha</label>
+                        <input type="text" name="title" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Xabar</label>
+                        <textarea name="message" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Jo'natish</button>
+                    <a href="{% url 'notification_list' %}" class="btn btn-outline-secondary w-100 mt-2">Bekor qilish</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function selectRecipient(value) {
+    document.getElementById('recipient_group').value = value;
+    document.querySelectorAll('.recipient-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.recipient-btn[data-value="${value}"]`).classList.add('active');
+    document.getElementById('single_recipient_field').style.display = value === 'single' ? 'block' : 'none';
+    document.getElementById('group_field').style.display = value === 'by_group' ? 'block' : 'none';
+}
+
+function filterUsers() {
+    const search = document.getElementById('userSearch').value.toLowerCase();
+    const role = document.getElementById('roleFilter').value;
+    document.querySelectorAll('.user-item').forEach(item => {
+        const name = item.dataset.name.toLowerCase();
+        const itemRole = item.dataset.role;
+        const matchSearch = !search || name.includes(search);
+        const matchRole = !role || itemRole === role;
+        item.style.display = matchSearch && matchRole ? 'flex' : 'none';
+    });
+    updateCount();
+}
+
+function selectAllVisible() {
+    document.querySelectorAll('.user-item:not([style*="display: none"]) .user-checkbox').forEach(cb => cb.checked = true);
+    updateCount();
+}
+
+function deselectAll() {
+    document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = false);
+    updateCount();
+}
+
+function updateCount() {
+    const count = document.querySelectorAll('.user-checkbox:checked').length;
+    document.getElementById('selectedCount').textContent = 'Tanlangan: ' + count;
+}
+</script>
+{% endblock %}

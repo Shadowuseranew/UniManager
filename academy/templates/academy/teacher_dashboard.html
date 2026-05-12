@@ -9,9 +9,10 @@
         <div class="card h-100 shadow-sm border-0 border-start border-primary border-4">
             <div class="card-body">
                 <h5 class="card-title text-primary">{{ lesson.subject.name }}</h5>
-                <p class="card-text mb-1"><strong>Guruh:</strong> {{ lesson.group_name }}</p>
+                <p class="card-text mb-1"><strong>Guruh:</strong> {{ lesson.group.name }}</p>
+                <p class="card-text mb-1"><strong>Sana:</strong> {{ lesson.date|date:"d.m.Y" }}</p>
                 <p class="card-text mb-1 text-muted">
-                    <i class="bi bi-clock"></i> {{ lesson.get_day_display }}, {{ lesson.start_time|time:"H:i" }}
+                    <i class="bi bi-clock"></i> {{ lesson.get_day_of_week_display }}, {{ lesson.start_time|time:"H:i" }}
                 </p>
                 <p class="card-text mb-3 text-muted">
                     <i class="bi bi-geo-alt"></i> Xona: {{ lesson.classroom.number }}

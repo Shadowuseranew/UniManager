@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}Yangi Guruh Qo'shish{% endblock %}
+{% block title %}{% if edit_mode %}Guruhni Tahrirlash{% else %}Yangi Guruh Qo'shish{% endif %}{% endblock %}
 
 {% block content %}
 <div class="container py-2">
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'group_list' %}" class="text-decoration-none">Guruhlar</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Yangi guruh</li>
+            <li class="breadcrumb-item active" aria-current="page">{% if edit_mode %}Tahrirlash{% else %}Yangi guruh{% endif %}</li>
         </ol>
     </nav>
 
@@ -16,7 +16,7 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-bottom py-3">
                     <h5 class="card-title mb-0 fw-bold">
-                        <i class="bi bi-people-fill text-primary me-2"></i> Yangi Guruh Yaratish
+                        <i class="bi bi-people-fill text-primary me-2"></i> {% if edit_mode %}Guruhni Tahrirlash{% else %}Yangi Guruh Yaratish{% endif %}
                     </h5>
                 </div>
                 <div class="card-body p-4">

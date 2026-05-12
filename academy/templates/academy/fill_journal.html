@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white p-3">
+        <h4 class="mb-0"><i class="bi bi-journal-plus"></i> Jurnal to'ldirish</h4>
+        <small>{{ timetable.subject.name }} | {{ timetable.group.name }} | {{ timetable.get_day_of_week_display }} {{ timetable.start_time|time:'H:i' }}-{{ timetable.end_time|time:'H:i' }}</small>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3 col-md-6">
+                <label class="form-label fw-bold">Dars mavzusi:</label>
+                <input type="text" name="topic" class="form-control" placeholder="Mavzuni kiriting" required>
+            </div>
+
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Talaba</th>
+                        <th>Qatnashdi</th>
+                        <th>Baho</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <div class="fw-bold">{{ student.get_full_name|default:student.username }}</div>
+                        </td>
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="present_{{ student.id }}" id="present_{{ student.id }}" checked>
+                                <label class="form-check-label" for="present_{{ student.id }}">Bor</label>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" name="score_{{ student.id }}" class="form-control form-control-sm" style="width: 100px;" min="0" max="100" placeholder="Baho">
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Bu guruhda talabalar yo'q</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary px-5"><i class="bi bi-save"></i> Saqlash</button>
+                <a href="{% url 'teacher_dashboard' %}" class="btn btn-outline-secondary">Bekor qilish</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

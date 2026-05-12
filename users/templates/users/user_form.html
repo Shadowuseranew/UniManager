@@ -5,7 +5,9 @@
     <div class="col-md-6">
         <div class="card shadow-sm border-0">
             <div class="card-header bg-white">
-                <h5 class="mb-0 text-primary fw-bold">Yangi foydalanuvchi qo'shish</h5>
+                <h5 class="mb-0 text-primary fw-bold">
+                    {% if title %}{{ title }}{% elif edit_mode %}Tahrirlash{% else %}Foydalanuvchi ma'lumotlari{% endif %}
+                </h5>
             </div>
             <div class="card-body">
                 <form method="post">

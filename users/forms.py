@@ -1,25 +1,69 @@
 from django import forms
-from .models import User
-from academy.models import Group  # Guruhlarni olish uchun
-
-from django import forms
-from .models import User
+from .models import User, TeacherProfile
 from academy.models import Group
 
-class UserCreationForm(forms.ModelForm):
+class BaseUserForm(forms.ModelForm):
+    """Barcha foydalanuvchilar uchun umumiy maydonlar"""
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
         required=False,
         label="Parol"
     )
-    
+
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'phone_number', 'password']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        password = self.cleaned_data.get("password")
+        if password:
+            user.set_password(password)
+        if commit:
+            user.save()
+        return user
+
+class AdminAddForm(BaseUserForm):
+    """Admin qo'shish formasi"""
+    class Meta(BaseUserForm.Meta):
+        fields = BaseUserForm.Meta.fields
+
+class TeacherAddForm(BaseUserForm):
+    """O'qituvchi qo'shish formasi"""
+    specialization = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        label="Mutaxassislik"
+    )
+    bio = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        required=False,
+        label="O'qituvchi haqida"
+    )
+
+    class Meta(BaseUserForm.Meta):
+        fields = BaseUserForm.Meta.fields + ['specialization', 'bio']
+
+class StudentAddForm(BaseUserForm):
+    """Talaba qo'shish formasi"""
     student_id = forms.CharField(
         max_length=20, 
-        required=False, # Majburiy emas qilamiz, chunki admin yoki o'qituvchiga kerakmas bo'lishi mumkin
+        required=True,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Masalan: ST-2026-001'}),
         label="Talaba ID"
     )
-
+    course = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 6}),
+        label="Kurs"
+    )
     groups = forms.ModelMultipleChoiceField(
         queryset=Group.objects.all(),
         required=False,
@@ -27,31 +71,11 @@ class UserCreationForm(forms.ModelForm):
         label="Guruhlarni tanlang"
     )
 
-    class Meta:
-        model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'role', 'phone_number', 'password']
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'role': forms.Select(attrs={'class': 'form-control'}),
-            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
-        }
+    class Meta(BaseUserForm.Meta):
+        fields = BaseUserForm.Meta.fields + ['student_id', 'course', 'groups']
 
-def save(self, commit=True):
-    # commit=False bilan bazaga yozishni vaqtincha to'xtatamiz
-    user = super().save(commit=False)
-    
-    # Formadan parolni olamiz
-    password = self.cleaned_data.get("password")
-    
-    if password:
-        # Agar yangi parol yozilgan bo'lsa, uni shifrlab saqlaymiz
-        user.set_password(password)
-    
-    # DIQQAT: Bu yerda boshqa set_password qatori bo'lmasligi kerak!
-    
-    if commit:
-        user.save()
-    return user
+class UserCreationForm(StudentAddForm):
+    """Eski viewlar bilan moslikni ta'minlash uchun (vaqtincha)"""
+    role = forms.ChoiceField(choices=User.USER_ROLES, widget=forms.Select(attrs={'class': 'form-control'}))
+    class Meta(StudentAddForm.Meta):
+        fields = StudentAddForm.Meta.fields + ['role']

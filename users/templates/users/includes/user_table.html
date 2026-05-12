@@ -6,6 +6,7 @@
                 <th>F.I.SH</th>
                 <th>Email / Telefon</th>
                 {% if type == 'student' %}
+                    <th>Kurs</th>
                     <th>Guruhlari</th>
                 {% endif %}
                 <th class="text-end pe-4">Amallar</th>
@@ -24,6 +25,7 @@
                 </td>
                 
                 {% if type == 'student' %}
+                <td><span class="fw-bold">{{ user_obj.student_profile.course|default:"-" }}</span></td>
                 <td>
                     {% if user_obj.student_profile %}
                         {% with groups=user_obj.student_profile.groups.all %}

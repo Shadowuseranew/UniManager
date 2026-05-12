@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="bi bi-credit-card"></i> To'lovlar</h3>
+    {% if user.role == 'admin' %}
+    <a href="{% url 'payment_add' %}" class="btn btn-success"><i class="bi bi-plus-lg"></i> Yangi to'lov</a>
+    {% endif %}
+</div>
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Talaba</th>
+                    <th>Summa</th>
+                    <th>Izoh</th>
+                    <th>Holat</th>
+                    <th>Sana</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in payments %}
+                <tr>
+                    <td>{{ p.student.get_full_name }}</td>
+                    <td>{{ p.amount }} so'm</td>
+                    <td>{{ p.description }}</td>
+                    <td>
+                        <span class="badge {% if p.status == 'paid' %}bg-success{% elif p.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                            {{ p.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ p.created_at|date:"d.m.Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center py-4">To'lovlar topilmadi.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

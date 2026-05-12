@@ -2,14 +2,24 @@
 
 {% block content %}
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <h3 class="fw-bold text-dark">
-            <i class="bi bi-calendar3 text-primary me-2"></i> Haftalik Dars Jadvali
+            <i class="bi bi-calendar3 text-primary me-2"></i>
+            {% if view_type == 'daily' %}Kunlik Dars Jadvali
+            {% elif view_type == 'weekly' %}Haftalik Dars Jadvali
+            {% elif view_type == 'monthly' %}Oylik Dars Jadvali
+            {% elif view_type == 'semester' %}Semestr Dars Jadvali
+            {% else %}Dars Jadvali{% endif %}
         </h3>
         {% if user.role == 'admin' or user.is_staff %}
-        <a href="{% url 'timetable_add' %}" class="btn btn-primary shadow-sm border-0 px-4">
-            <i class="bi bi-plus-circle me-1"></i> Yangi dars qo'shish
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{% url 'timetable_add' %}" class="btn btn-primary shadow-sm border-0 px-3">
+                <i class="bi bi-plus-circle me-1"></i> Bitta dars
+            </a>
+            <a href="{% url 'timetable_batch' %}" class="btn btn-success shadow-sm border-0 px-3">
+                <i class="bi bi-calendar-plus me-1"></i> Butun hafta
+            </a>
+        </div>
         {% endif %}
     </div>
 
@@ -22,119 +32,201 @@
         {% endfor %}
     {% endif %}
 
-    <div class="row g-4">
-        {% for day_name, lessons in schedule.items %}
-        <div class="col-12 col-md-6 col-xl-4">
-            <div class="card h-100 border-0 shadow-sm overflow-hidden rounded-4">
-                <div class="card-header bg-dark py-3 border-0">
-                    <h5 class="mb-0 text-white fw-bold">
-                        <i class="bi bi-clock-history me-2 text-info"></i> {{ day_name }}
-                    </h5>
-                </div>
+    <ul class="nav nav-pills mb-4 gap-1">
+        <li class="nav-item">
+            <a href="?view=daily" class="nav-link {% if view_type == 'daily' %}active{% endif %}">
+                <i class="bi bi-sun"></i> Kunlik
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="?view=weekly" class="nav-link {% if view_type == 'weekly' %}active{% endif %}">
+                <i class="bi bi-calendar-week"></i> Haftalik
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="?view=monthly" class="nav-link {% if view_type == 'monthly' %}active{% endif %}">
+                <i class="bi bi-calendar-month"></i> Oylik
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="?view=semester" class="nav-link {% if view_type == 'semester' %}active{% endif %}">
+                <i class="bi bi-calendar-range"></i> Semestr
+            </a>
+        </li>
+    </ul>
 
-                <div class="card-body p-0">
-                    <ul class="list-group list-group-flush">
-                        {% for lesson in lessons %}
-                        <li class="list-group-item p-3 border-start border-4 border-primary position-relative">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="badge bg-primary-subtle text-primary rounded-pill px-3">
-                                    {{ lesson.start_time|time:"H:i" }} - {{ lesson.end_time|time:"H:i" }}
-                                </span>
-                                <span class="text-muted small fw-medium">
-                                    <i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ lesson.classroom.name|default:lesson.classroom }}
-                                </span>
-                            </div>
-
-                            <h6 class="fw-bold text-dark mb-1 fs-5">{{ lesson.subject.name }}</h6>
-
-                            <div class="d-flex flex-column gap-1">
-                                <small class="text-secondary">
-                                    <i class="bi bi-person-badge me-1"></i> 
-                                    {{ lesson.teacher.get_full_name|default:lesson.teacher.username }}
-                                </small>
-                                
-                                <div class="mt-2 d-flex justify-content-between align-items-center">
-                                    {% if lesson.group %}
-                                    <span class="badge bg-secondary-subtle text-secondary small fw-normal">
-                                        <i class="bi bi-people me-1"></i> {{ lesson.group.name }}
-                                    </span>
-                                    {% else %}
-                                    <span class="badge bg-danger-subtle text-danger small fw-normal">
-                                        <i class="bi bi-exclamation-circle me-1"></i> Guruh belgilanmagan
-                                    </span>
-                                    {% endif %}
-                                    {% if user.role == 'admin' or user.is_staff %}
-                                    <div class="d-flex gap-1">
-                                        <a href="{% url 'timetable_edit' lesson.pk %}" class="btn btn-sm btn-light text-info border-0 shadow-sm" title="Tahrirlash">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-light text-danger border-0 shadow-sm" 
-                                                data-bs-toggle="modal" data-bs-target="#deleteModal{{ lesson.pk }}" title="O'chirish">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-
-                                    <div class="modal fade" id="deleteModal{{ lesson.pk }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content border-0 shadow">
-                                                <div class="modal-body p-4 text-center">
-                                                    <i class="bi bi-exclamation-circle text-danger display-4 mb-3"></i>
-                                                    <h5 class="fw-bold">Darsni o'chirasizmi?</h5>
-                                                    <p class="text-muted small mb-4">"{{ lesson.subject.name }}" darsini jadvaldan o'chirishni tasdiqlaysizmi?</p>
-                                                    <form action="{% url 'timetable_delete' lesson.pk %}" method="post" class="d-inline">
-                                                        {% csrf_token %}
-                                                        <button type="submit" class="btn btn-danger px-4 me-2">Ha, o'chirilsin</button>
-                                                        <button type="button" class="btn btn-light px-4 border" data-bs-dismiss="modal">Bekor qilish</button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </li>
-                        {% empty %}
-                        <li class="list-group-item text-center py-5">
-                            <i class="bi bi-calendar-x text-muted display-6 d-block mb-2"></i>
-                            <p class="text-muted mb-0 fw-medium">Bu kunda darslar rejalashtirilmagan</p>
-                        </li>
-                        {% endfor %}
-                    </ul>
+    {% if view_type == 'daily' %}
+        <div class="row">
+            <div class="col-12">
+                <h5 class="text-primary mb-3"><i class="bi bi-calendar-event me-2"></i>{{ today|date:"l, d F Y" }}</h5>
+            </div>
+            {% for lesson in lessons %}
+            <div class="col-12 col-md-6 col-lg-4 mb-3">
+                <div class="card border-start border-4 border-success shadow-sm h-100">
+                    <div class="card-body py-3 px-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-success px-3">{{ lesson.start_time|time:"H:i" }} - {{ lesson.end_time|time:"H:i" }}</span>
+                            {% if lesson.group %}<small class="text-muted">{{ lesson.group.name }}</small>{% endif %}
+                        </div>
+                        <h6 class="fw-bold mb-1">{{ lesson.subject.name }}</h6>
+                        <small class="text-secondary d-block"><i class="bi bi-person me-1"></i>{{ lesson.teacher.get_full_name|default:lesson.teacher.username }}</small>
+                        {% if lesson.classroom %}<small class="text-secondary d-block"><i class="bi bi-door-open me-1"></i>{{ lesson.classroom.name|default:lesson.classroom.number }}</small>{% endif %}
+                        {% if user.role == 'admin' or user.is_staff %}
+                        <div class="mt-2 d-flex gap-1">
+                            <a href="{% url 'timetable_edit' lesson.pk %}" class="btn btn-sm btn-outline-info"><i class="bi bi-pencil"></i></a>
+                            <button class="btn btn-sm btn-outline-danger delete-btn" data-pk="{{ lesson.pk }}" data-name="{{ lesson.subject.name }}"><i class="bi bi-trash"></i></button>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
+            {% empty %}
+            <div class="col-12 text-center py-5"><i class="bi bi-check-circle text-success display-4"></i><p class="text-muted mt-2">Bugun barcha darslar tugagan yoki rejalashtirilmagan</p></div>
+            {% endfor %}
         </div>
+
+    {% elif view_type == 'weekly' %}
+        <div class="row g-3">
+            {% for date, lessons in schedule.items %}
+            <div class="col-12 col-md-6 col-xl-4">
+                <div class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden">
+                    <div class="card-header bg-dark py-3 border-0">
+                        <h5 class="mb-0 text-white fw-bold">
+                            <i class="bi bi-clock-history me-2 text-info"></i> {{ date|date:"l" }}
+                            <small class="d-block text-light mt-1" style="font-size:0.8rem;">{{ date|date:"d F" }}</small>
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            {% for lesson in lessons %}
+                            <li class="list-group-item p-3 border-start border-4 border-primary">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <span class="badge bg-primary-subtle text-primary rounded-pill px-3">{{ lesson.start_time|time:"H:i" }} - {{ lesson.end_time|time:"H:i" }}</span>
+                                    <small class="text-muted"><i class="bi bi-geo-alt text-danger me-1"></i>{{ lesson.classroom.name|default:lesson.classroom.number }}</small>
+                                </div>
+                                <h6 class="fw-bold mb-1">{{ lesson.subject.name }}</h6>
+                                <small class="text-secondary"><i class="bi bi-person me-1"></i>{{ lesson.teacher.get_full_name|default:lesson.teacher.username }}</small>
+                                {% if lesson.group %}<span class="badge bg-secondary-subtle text-secondary mt-1"><i class="bi bi-people me-1"></i>{{ lesson.group.name }}</span>{% endif %}
+                                {% if user.role == 'admin' or user.is_staff %}
+                                <div class="mt-2 d-flex gap-1">
+                                    <a href="{% url 'timetable_edit' lesson.pk %}" class="btn btn-sm btn-outline-info"><i class="bi bi-pencil"></i></a>
+                                    <button class="btn btn-sm btn-outline-danger delete-btn" data-pk="{{ lesson.pk }}" data-name="{{ lesson.subject.name }}"><i class="bi bi-trash"></i></button>
+                                </div>
+                                {% endif %}
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item text-center py-4"><i class="bi bi-calendar-x text-muted display-6 d-block mb-1"></i><p class="text-muted small mb-0">Dars yo'q</p></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    {% elif view_type == 'monthly' %}
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5><i class="bi bi-calendar-month me-2 text-primary"></i>{{ month_start|date:"F Y" }}</h5>
+        </div>
+        {% regroup lessons by date as date_groups %}
+        {% for date_group in date_groups %}
+        <div class="mb-4">
+            <h6 class="text-primary border-bottom pb-2">{{ date_group.grouper|date:"l, d F Y" }}</h6>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2">
+                {% for lesson in date_group.list %}
+                <div class="col">
+                    <div class="card border-start border-4 border-info shadow-sm h-100">
+                        <div class="card-body py-2 px-3">
+                            <span class="badge bg-info text-dark mb-1">{{ lesson.start_time|time:"H:i" }} - {{ lesson.end_time|time:"H:i" }}</span>
+                            <h6 class="fw-bold mb-0">{{ lesson.subject.name }}</h6>
+                            <small class="text-secondary"><i class="bi bi-person me-1"></i>{{ lesson.teacher.get_full_name|default:lesson.teacher.username }}</small>
+                            <small class="text-secondary d-block"><i class="bi bi-people me-1"></i>{{ lesson.group.name }}</small>
+                            {% if user.role == 'admin' or user.is_staff %}
+                            <div class="mt-1 d-flex gap-1">
+                                <a href="{% url 'timetable_edit' lesson.pk %}" class="btn btn-sm btn-outline-info py-0"><i class="bi bi-pencil"></i></a>
+                                <button class="btn btn-sm btn-outline-danger py-0 delete-btn" data-pk="{{ lesson.pk }}" data-name="{{ lesson.subject.name }}"><i class="bi bi-trash"></i></button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-5"><i class="bi bi-calendar-x text-muted display-3"></i><p class="text-muted mt-2">Bu oyda darslar yo'q</p></div>
         {% endfor %}
+
+    {% elif view_type == 'semester' %}
+        {% if semester %}
+        <div class="alert alert-info border-0 shadow-sm rounded-4 mb-3">
+            <i class="bi bi-info-circle me-2"></i><strong>{{ semester.name }}</strong> — {{ semester.start_date|date:"d.m.Y" }} dan {{ semester.end_date|date:"d.m.Y" }} gacha
+        </div>
+        {% endif %}
+        {% regroup lessons by date as date_groups %}
+        {% for date_group in date_groups %}
+        <div class="mb-3">
+            <h6 class="text-success border-bottom pb-1">{{ date_group.grouper|date:"l, d F Y" }}</h6>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2">
+                {% for lesson in date_group.list %}
+                <div class="col">
+                    <div class="card border-start border-4 border-success shadow-sm h-100">
+                        <div class="card-body py-2 px-3">
+                            <span class="badge bg-success mb-1">{{ lesson.start_time|time:"H:i" }} - {{ lesson.end_time|time:"H:i" }}</span>
+                            <h6 class="fw-bold mb-0">{{ lesson.subject.name }}</h6>
+                            <small class="text-secondary"><i class="bi bi-person me-1"></i>{{ lesson.teacher.get_full_name|default:lesson.teacher.username }}</small>
+                            <small class="text-secondary d-block"><i class="bi bi-people me-1"></i>{{ lesson.group.name }}</small>
+                            {% if user.role == 'admin' or user.is_staff %}
+                            <div class="mt-1 d-flex gap-1">
+                                <a href="{% url 'timetable_edit' lesson.pk %}" class="btn btn-sm btn-outline-info py-0"><i class="bi bi-pencil"></i></a>
+                                <button class="btn btn-sm btn-outline-danger py-0 delete-btn" data-pk="{{ lesson.pk }}" data-name="{{ lesson.subject.name }}"><i class="bi bi-trash"></i></button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-5"><i class="bi bi-calendar-x text-muted display-3"></i><p class="text-muted mt-2">Semestrda darslar yo'q</p></div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-body p-4 text-center">
+                <i class="bi bi-exclamation-circle text-danger display-4 mb-3"></i>
+                <h5 class="fw-bold">Darsni o'chirasizmi?</h5>
+                <p class="text-muted small mb-4" id="deleteModalText"></p>
+                <form method="post" class="d-inline" id="deleteForm">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger px-4 me-2">Ha, o'chirilsin</button>
+                    <button type="button" class="btn btn-light px-4 border" data-bs-dismiss="modal">Bekor qilish</button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
+<script>
+document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.getElementById('deleteModalText').textContent = `"${this.dataset.name}" darsini o'chirishni tasdiqlaysizmi?`;
+        document.getElementById('deleteForm').action = `/timetable/delete/${this.dataset.pk}/`;
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    });
+});
+</script>
+
 <style>
-    /* Chiroyli ko'rinish uchun qo'shimcha stil */
-    .card {
-        transition: transform 0.25s cubic-bezier(.4,0,.2,1), box-shadow 0.25s ease;
-    }
-    .card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important;
-    }
-    .list-group-item {
-        transition: background-color 0.2s ease;
-        border-bottom: 1px solid #f0f2f5 !important;
-    }
-    .list-group-item:last-child {
-        border-bottom: none !important;
-    }
-    .list-group-item:hover {
-        background-color: #fbfcfe;
-    }
-    .badge {
-        font-weight: 500;
-    }
-    .bg-primary-subtle {
-        background-color: #e7f0ff !important;
-    }
-    .bg-secondary-subtle {
-        background-color: #f1f3f5 !important;
-    }
+.nav-pills .nav-link { border-radius: 50rem; padding: 0.4rem 1.2rem; font-weight: 500; }
+.nav-pills .nav-link.active { background: #2c3e50; }
+.card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.06) !important; }
+.bg-primary-subtle { background-color: #e7f0ff !important; }
+.bg-secondary-subtle { background-color: #f1f3f5 !important; }
 </style>
 {% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="bi bi-people"></i> {{ group.name }} guruhi</h3>
+    <a href="{% url 'group_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Ortga</a>
+</div>
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-3"><strong>Fakultet:</strong> {{ group.faculty.name }}</div>
+            <div class="col-md-3"><strong>Kurs:</strong> {{ group.course_number }}</div>
+            <div class="col-md-3"><strong>Talabalar:</strong> {{ student_count }} ta</div>
+            <div class="col-md-3"><strong>Rahbar:</strong> {{ group.teacher.get_full_name|default:"-" }}</div>
+        </div>
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Talaba ID</th>
+                    <th>Ism</th>
+                    <th>Telefon</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ s.student_id }}</td>
+                    <td>{{ s.user.get_full_name }}</td>
+                    <td>{{ s.phone_number|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center py-4">Talabalar yo'q</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if user.role == 'admin' or user.role == 'teacher' %}
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Guruhga talaba qo'shish</h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-2">
+                <input type="text" id="studentSearch" class="form-control" placeholder="Qidirish..." oninput="filterStudents()">
+            </div>
+            <div style="max-height:200px;overflow-y:auto;border:1px solid #ddd;border-radius:6px;padding:8px;">
+                {% for s in available_students %}
+                <label class="d-flex align-items-center gap-2 py-1 student-item" data-name="{{ s.user.get_full_name }} {{ s.student_id }}" style="cursor:pointer;">
+                    <input type="checkbox" name="add_students" value="{{ s.id }}">
+                    <span>{{ s.user.get_full_name }}</span>
+                    <small class="text-muted ms-auto">{{ s.student_id }}</small>
+                </label>
+                {% empty %}
+                <p class="text-muted text-center py-3 mb-0">Barcha talabalar guruhga qo'shilgan</p>
+                {% endfor %}
+            </div>
+            {% if available_students %}
+            <button type="submit" class="btn btn-primary mt-3">Tanlanganlarni qo'shish</button>
+            {% endif %}
+        </form>
+    </div>
+</div>
+<script>
+function filterStudents() {
+    const q = document.getElementById('studentSearch').value.toLowerCase();
+    document.querySelectorAll('.student-item').forEach(el => {
+        el.style.display = el.dataset.name.toLowerCase().includes(q) ? 'flex' : 'none';
+    });
+}
+</script>
+{% endif %}
+{% endblock %}

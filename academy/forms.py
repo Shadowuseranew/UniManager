@@ -1,5 +1,5 @@
 from django import forms
-from .models import Timetable, Subject, Lesson, Classroom, Group
+from .models import Timetable, Subject, Classroom, Group, Payment, Exam, StudyMaterial, Notification, Semester, Faculty
 from users.models import User
 
 class SubjectForm(forms.ModelForm):
@@ -10,21 +10,6 @@ class SubjectForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'code': forms.TextInput(attrs={'class': 'form-control'}),
             'credits': forms.NumberInput(attrs={'class': 'form-control'}),
-        }
-
-class LessonForm(forms.ModelForm):
-    class Meta:
-        model = Lesson
-        # 'room' o'rniga 'classroom' ishlatamiz
-        fields = ['subject', 'teacher', 'classroom', 'day', 'start_time', 'end_time', 'group_name']
-        widgets = {
-            'start_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
-            'end_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
-            'day': forms.Select(attrs={'class': 'form-select'}),
-            'subject': forms.Select(attrs={'class': 'form-select'}),
-            'teacher': forms.Select(attrs={'class': 'form-select'}),
-            'classroom': forms.Select(attrs={'class': 'form-select'}), # Bu endi Select (ForeignKey bo'lgani uchun)
-            'group_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Masalan: IF-21'}),
         }
 
 class ClassroomForm(forms.ModelForm):
@@ -54,9 +39,8 @@ class GroupForm(forms.ModelForm):
                 'class': 'form-control', 
                 'placeholder': 'Masalan: IF-21'
             }),
-            'faculty': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Masalan: Kompyuter injiniringi'
+            'faculty': forms.Select(attrs={
+                'class': 'form-select',
             }),
             'course_number': forms.NumberInput(attrs={
                 'class': 'form-control', 
@@ -82,6 +66,61 @@ class GroupForm(forms.ModelForm):
         self.fields['teacher'].label = "Guruh rahbari (Kurator)"
         self.fields['subjects'].label = "Ushbu guruh o'qiydigan fanlar"
 
+class PaymentForm(forms.ModelForm):
+    class Meta:
+        model = Payment
+        fields = ['student', 'amount', 'description', 'status']
+        widgets = {
+            'student': forms.Select(attrs={'class': 'form-select'}),
+            'amount': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'description': forms.TextInput(attrs={'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['student'].queryset = User.objects.filter(role='student')
+        self.fields['student'].label = "Talaba"
+        self.fields['amount'].label = "Summa"
+
+class ExamForm(forms.ModelForm):
+    class Meta:
+        model = Exam
+        fields = ['subject', 'group', 'exam_type', 'date', 'start_time', 'end_time', 'max_score']
+        widgets = {
+            'subject': forms.Select(attrs={'class': 'form-select'}),
+            'group': forms.Select(attrs={'class': 'form-select'}),
+            'exam_type': forms.Select(attrs={'class': 'form-select'}),
+            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'start_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'end_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'max_score': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+class StudyMaterialForm(forms.ModelForm):
+    class Meta:
+        model = StudyMaterial
+        fields = ['subject', 'title', 'file']
+        widgets = {
+            'subject': forms.Select(attrs={'class': 'form-select'}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'file': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
+class NotificationForm(forms.ModelForm):
+    class Meta:
+        model = Notification
+        fields = ['recipient', 'title', 'message']
+        widgets = {
+            'recipient': forms.Select(attrs={'class': 'form-select'}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'message': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['recipient'].queryset = User.objects.all()
+
 class TimetableForm(forms.ModelForm):
     class Meta:
         model = Timetable
@@ -92,9 +131,21 @@ class TimetableForm(forms.ModelForm):
             # Guruh tanlash (Select) vidjetini qo'shing
             'group': forms.Select(attrs={'class': 'form-select'}),
             'subject': forms.Select(attrs={'class': 'form-select'}),
-            'teacher': forms.Select(attrs={'class': 'form-select'}),
-            'day_of_week': forms.Select(attrs={'class': 'form-select'}),
-            'classroom': forms.Select(attrs={'class': 'form-select'}), # Xonani ham Select qiling
-            'start_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
-            'end_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+        'teacher': forms.Select(attrs={'class': 'form-select'}),
+        'day_of_week': forms.Select(attrs={'class': 'form-select'}),
+        'classroom': forms.Select(attrs={'class': 'form-select'}), # Xonani ham Select qiling
+        'start_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+        'end_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+    }
+
+class SemesterForm(forms.ModelForm):
+    class Meta:
+        model = Semester
+        fields = ['name', 'academic_year', 'start_date', 'end_date', 'is_active']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Masalan: 2025-2026 Bahorgi semestr'}),
+            'academic_year': forms.Select(attrs={'class': 'form-select'}),
+            'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }

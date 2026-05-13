@@ -1,15 +1,23 @@
 from django.core.management.base import BaseCommand
-from users.models import User, TeacherProfile
-from academy.models import Student, Group, Subject, Classroom, Semester, Faculty, AcademicYear
-from faker import Faker
+from users.models import User
+from academy.models import Student, Subject, Classroom, Semester, Faculty, AcademicYear
 import random
 
 class Command(BaseCommand):
     help = 'Malumotlar bilan toldirish: 40 oqituvchi, 400 talaba'
 
     def handle(self, *args, **options):
-        fake = Faker()
         self.stdout.write("Malumotlar yaratilmoqda...")
+        first_names = ['Ali', 'Vali', 'Soli', 'Husan', 'Husan', 'Murod', 'Bobur', 'Jamshid', 'Botir', 'Akmal',
+                       'Dilshod', 'Shavkat', 'Rustam', 'Oybek', 'Ulug\'bek', 'Jasur', 'Davron', 'Bahrom', 'Zafar', 'Islom',
+                       'Shohruh', 'Temur', 'Sarvar', 'Jahongir', 'Ilyos', 'Bekzod', 'Farrux', 'Ravshan', 'Aziz', 'Nodir',
+                       'Nigora', 'Zulfiya', 'Gulnora', 'Dildora', 'Mohigul', 'Nargiza', 'Feruza', 'Maftuna', 'Shahlo', 'Gulbahor',
+                       'Maqsuda', 'Saodat', 'Matluba', 'Dilfuza', 'Sabina', 'Zilola', 'Adolat', 'Sitora', 'Malika', 'Hilola']
+        last_names = ['Abdullayev', 'Karimov', 'Aliyev', 'Toshmatov', 'Sobirov', 'Murodov', 'Sultonov', 'Mirzayev',
+                      'Usmonov', 'Xasanov', 'Raximov', 'Ismoilov', 'Komilov', 'Yusupov', 'Nurmatov', 'Ergashev',
+                      'Rashidov', 'Hamidov', 'Tursunov', 'Bekmurodov',
+                      'Abdullayeva', 'Karimova', 'Aliyeva', 'Sobirova', 'Raximova', 'Usmonova', 'Sultonova', 'Mirzayeva',
+                      'Ismoilova', 'Xasanova', 'Komilova', 'Yusupova', 'Ergasheva', 'Rashidova', 'Hamidova', 'Nurmatova']
 
         if Subject.objects.count() == 0:
             subjects = [
@@ -74,8 +82,8 @@ class Command(BaseCommand):
         if teachers_count < 5:
             to_create = 5 - teachers_count
             for i in range(to_create):
-                first = fake.first_name()
-                last = fake.last_name()
+                first = random.choice(first_names)
+                last = random.choice(last_names)
                 username = f"teacher{teachers_count + i + 1}"
                 user = User.objects.create_user(
                     username=username,
@@ -97,8 +105,8 @@ class Command(BaseCommand):
         if students_count < 10:
             to_create = 10 - students_count
             for i in range(to_create):
-                first = fake.first_name()
-                last = fake.last_name()
+                first = random.choice(first_names)
+                last = random.choice(last_names)
                 username = f"student{students_count + i + 1}"
                 user = User.objects.create_user(
                     username=username,

@@ -11,6 +11,21 @@
         <div class="px-2">
             {% block sidebar_menu %}{% endblock %}
         </div>
+        <div class="mt-auto p-3 border-top" style="border-color:rgba(255,255,255,0.1)!important;">
+            <div class="d-flex align-items-center">
+                <div style="width:32px;height:32px;overflow:hidden;flex-shrink:0;">
+                    {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" alt="" class="rounded-circle" style="width:32px;height:32px;object-fit:cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center fw-bold small" style="width:32px;height:32px;">{{ user.username|first|upper }}</div>
+                    {% endif %}
+                </div>
+                <div class="ms-2 text-white small" style="opacity:0.8;">
+                    <div class="fw-semibold" style="font-size:0.75rem;">{{ user.get_full_name|default:user.username }}</div>
+                    <div style="font-size:0.65rem;">{{ user.get_role_display }}</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="main-content">
@@ -26,7 +41,13 @@
                     <div class="fw-semibold small" style="color:#1a1a2e;">{{ user.username }}</div>
                     <div style="font-size: 0.7rem; color:var(--primary);">{{ user.get_role_display|default:user.role }}</div>
                 </div>
-                <div class="user-profile-img me-3">{{ user.username|first|upper }}</div>
+                <div class="user-profile-img me-3" style="width:36px;height:36px;overflow:hidden;">
+                    {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" alt="" class="rounded-circle" style="width:36px;height:36px;object-fit:cover;">
+                    {% else %}
+                        {{ user.username|first|upper }}
+                    {% endif %}
+                </div>
                 <form action="{% url 'logout' %}" method="post" class="m-0">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">

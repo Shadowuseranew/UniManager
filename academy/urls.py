@@ -29,8 +29,8 @@ urlpatterns = [
     path('timetable/delete/<int:pk>/', views.timetable_delete, name='timetable_delete'),
 
     # Jurnallar va Dashboardlar
-    path('teacher/dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
-    path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
+    path('teacher/dashboard/', views.dashboard, name='teacher_dashboard'),
+    path('student/dashboard/', views.dashboard, name='student_dashboard'),
     path('journal/<int:lesson_id>/', views.journal_view, name='journal_view'),
     path('subject/<uuid:uuid>/journal/', views.grade_journal, name='grade_journal'),
     path('journal/fill/<int:timetable_id>/', views.fill_journal, name='fill_journal'),
@@ -68,7 +68,7 @@ urlpatterns = [
 
 
     # Ota-ona (Parent)
-    path('parent/dashboard/', views.parent_dashboard, name='parent_dashboard'),
+    path('parent/dashboard/', views.dashboard, name='parent_dashboard'),
     path('parent/student/<uuid:uuid>/', views.parent_student_detail, name='parent_student_detail'),
 
     path('chat/', views.chat_assistant, name='chat_assistant'),

@@ -14,13 +14,7 @@ class RoleBasedLoginView(LoginView):
     redirect_authenticated_user = True
 
     def get_success_url(self):
-        role_urls = {
-            'admin': 'dashboard',
-            'teacher': 'teacher_dashboard',
-            'student': 'student_dashboard',
-            'parent': 'parent_dashboard',
-        }
-        return reverse(role_urls.get(self.request.user.role, 'dashboard'))
+        return reverse('dashboard')
 
 
 @login_required

@@ -4,7 +4,7 @@ from .models import Subject, Student, Enrollment, Grade, Attendance, Timetable, 
 from .forms import SubjectForm, TimetableForm, ClassroomForm, GroupForm, PaymentForm, ExamForm, StudyMaterialForm, NotificationForm, SemesterForm
 from .chat_assistant import Assistant
 from .audit_logger import log_action
-from users.decorators import admin_only, teacher_only, student_only, parent_only, admin_or_teacher
+from users.decorators import admin_only, parent_only, admin_or_teacher
 from users.forms import StudentAddForm, TeacherAddForm, AdminAddForm
 from django.utils import timezone
 from datetime import time, timedelta
@@ -18,7 +18,28 @@ from collections import defaultdict
 
 @login_required
 def dashboard(request):
-    return render(request, 'academy/dashboard.html', request.user.dashboard_context())
+    role_templates = {
+        'teacher': 'academy/teacher_dashboard.html',
+        'student': 'academy/student_dashboard.html',
+        'parent': 'academy/parent_dashboard.html',
+    }
+    template = role_templates.get(request.user.role, 'academy/dashboard.html')
+
+    if request.user.role == 'admin':
+        context = request.user.dashboard_context()
+    elif request.user.role == 'teacher':
+        context = {
+            'lessons': Timetable.objects.filter(teacher=request.user).select_related('subject', 'group', 'classroom'),
+        }
+    elif request.user.role == 'student':
+        profile = getattr(request.user, 'student_profile', None)
+        context = {'subject_data': profile.subject_data() if profile else []}
+    elif request.user.role == 'parent':
+        context = {'children_data': request.user.parent_children_data()}
+    else:
+        context = {}
+
+    return render(request, template, context)
 
 # Fanlar ro'yxati (Hamma ko'ra oladi)
 @login_required
@@ -370,12 +391,6 @@ def timetable_delete(request, pk):
     return redirect('timetable_view')
 
 @login_required
-@teacher_only
-def teacher_dashboard(request):
-    my_lessons = Timetable.objects.filter(teacher=request.user).select_related('subject', 'group', 'classroom')
-    return render(request, 'academy/teacher_dashboard.html', {'lessons': my_lessons})
-
-@login_required
 def grade_students(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
     # Ushbu fanga yozilgan talabalar
@@ -391,7 +406,7 @@ def grade_students(request, subject_id):
                     subject=subject,
                     defaults={'score': score, 'teacher': request.user}
                 )
-        return redirect('teacher_dashboard')
+        return redirect('dashboard')
 
     return render(request, 'academy/grade_form.html', {
         'subject': subject,
@@ -426,7 +441,7 @@ def journal_view(request, lesson_id):
                     defaults={'score': score, 'teacher': request.user}
                 )
         
-        return redirect('teacher_dashboard')
+        return redirect('dashboard')
 
     default_date = lesson.date or timezone.now().date()
     attendance_records = Attendance.objects.filter(timetable=lesson, date=default_date)
@@ -438,21 +453,6 @@ def journal_view(request, lesson_id):
         'enrollments': enrollments,
         'today': timezone.now().date(),
         'default_date': default_date,
-    })
-
-@login_required
-@student_only
-def student_dashboard(request):
-    profile = getattr(request.user, 'student_profile', None)
-    return render(request, 'academy/student_dashboard.html', {
-        'subject_data': profile.subject_data() if profile else []
-    })
-
-@login_required
-@parent_only
-def parent_dashboard(request):
-    return render(request, 'academy/parent_dashboard.html', {
-        'children_data': request.user.parent_children_data()
     })
 
 @login_required
@@ -899,7 +899,7 @@ def fill_journal(request, timetable_id):
             )
         
         messages.success(request, "Jurnal muvaffaqiyatli saqlandi!")
-        return redirect('teacher_dashboard')
+        return redirect('dashboard')
 
     return render(request, 'academy/fill_journal.html', {
         'timetable': timetable,

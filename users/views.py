@@ -49,6 +49,7 @@ def admin_add(request):
         form = AdminAddForm(request.POST)
         if form.is_valid():
             user, password = _create_user_with_password(form, 'admin')
+            request.session[f'new_pwd_{user.id}'] = password
             log_action(request, 'create', 'User', user, f"Admin qo'shildi: {user.username}")
             messages.success(request, mark_safe(f"Admin qo'shildi. Parol: <strong>{password}</strong>"))
             return redirect('user_list')
@@ -63,6 +64,7 @@ def teacher_add(request):
         form = TeacherAddForm(request.POST)
         if form.is_valid():
             user, password = _create_user_with_password(form, 'teacher')
+            request.session[f'new_pwd_{user.id}'] = password
             profile = user.teacher_profile
             profile.specialization = form.cleaned_data.get('specialization')
             profile.bio = form.cleaned_data.get('bio')
@@ -81,6 +83,7 @@ def parent_add(request):
         form = ParentAddForm(request.POST)
         if form.is_valid():
             user, password = _create_user_with_password(form, 'parent')
+            request.session[f'new_pwd_{user.id}'] = password
             log_action(request, 'create', 'User', user, f"Ota-ona qo'shildi: {user.username}")
             messages.success(request, mark_safe(f"Ota-ona qo'shildi. Parol: <strong>{password}</strong>"))
             return redirect('user_list')
@@ -95,6 +98,7 @@ def student_add(request):
         form = StudentAddForm(request.POST)
         if form.is_valid():
             user, password = _create_user_with_password(form, 'student')
+            request.session[f'new_pwd_{user.id}'] = password
             student = user.student_profile
             student.course = form.cleaned_data.get('course')
             student.parent = form.cleaned_data.get('parent')
@@ -159,7 +163,8 @@ def user_edit(request, uuid):
 def user_detail(request, uuid):
     """Foydalanuvchi haqida batafsil ma'lumot sahifasi"""
     user_obj = get_object_or_404(User.objects.prefetch_related('student_profile__groups'), uuid=uuid)
-    return render(request, 'users/user_detail.html', {'user_obj': user_obj})
+    new_password = request.session.pop(f'new_pwd_{user_obj.id}', None)
+    return render(request, 'users/user_detail.html', {'user_obj': user_obj, 'new_password': new_password})
 
 @login_required
 @admin_only

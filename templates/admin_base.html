@@ -26,11 +26,6 @@
 <p class="menu-label text-uppercase fw-bold mb-2 ps-3 mt-4">Rolga Mos</p>
 <ul class="nav flex-column">
     {% include 'includes/sidebar_link.html' with url_name='user_list' icon='bi-person-gear' label='Foydalanuvchilar' check='user' %}
-    <li class="nav-item">
-        <a href="{% url 'user_list' %}#parents" class="nav-link mb-1">
-            <i class="bi bi-people"></i> Ota-onalar
-        </a>
-    </li>
     {% include 'includes/sidebar_link.html' with url_name='notification_send' icon='bi-bell' label='Xabarlar' check='notification' %}
 </ul>
 {% endblock %}

@@ -63,7 +63,7 @@ def user_add_choice(request):
 @admin_only
 def admin_add(request):
     if request.method == "POST":
-        form = AdminAddForm(request.POST)
+        form = AdminAddForm(request.POST, request.FILES)
         if form.is_valid():
             user, password = _create_user_with_password(form, 'admin')
             request.session[f'new_pwd_{user.id}'] = password
@@ -78,7 +78,7 @@ def admin_add(request):
 @admin_only
 def teacher_add(request):
     if request.method == "POST":
-        form = TeacherAddForm(request.POST)
+        form = TeacherAddForm(request.POST, request.FILES)
         if form.is_valid():
             user, password = _create_user_with_password(form, 'teacher')
             request.session[f'new_pwd_{user.id}'] = password
@@ -97,7 +97,7 @@ def teacher_add(request):
 @admin_only
 def parent_add(request):
     if request.method == "POST":
-        form = ParentAddForm(request.POST)
+        form = ParentAddForm(request.POST, request.FILES)
         if form.is_valid():
             user, password = _create_user_with_password(form, 'parent')
             request.session[f'new_pwd_{user.id}'] = password
@@ -112,7 +112,7 @@ def parent_add(request):
 @admin_only
 def student_add(request):
     if request.method == "POST":
-        form = StudentAddForm(request.POST)
+        form = StudentAddForm(request.POST, request.FILES)
         if form.is_valid():
             user, password = _create_user_with_password(form, 'student')
             request.session[f'new_pwd_{user.id}'] = password
@@ -144,7 +144,7 @@ def user_edit(request, uuid):
     student_profile = getattr(user_obj, 'student_profile', None)
     
     if request.method == "POST":
-        form = UserCreationForm(request.POST, instance=user_obj)
+        form = UserCreationForm(request.POST, request.FILES, instance=user_obj)
         if form.is_valid():
             user = form.save(commit=False)
             raw_password = form.cleaned_data.get('password')

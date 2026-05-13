@@ -26,9 +26,13 @@
                     </div>
                     <div class="row mb-4 align-items-center">
                         <div class="col-sm-3 text-center">
-                            <div class="display-1 text-secondary opacity-25">
-                                <i class="bi bi-person-circle"></i>
-                            </div>
+                            {% if user_obj.avatar %}
+                                <img src="{{ user_obj.avatar.url }}" alt="Avatar" class="rounded-circle img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                            {% else %}
+                                <div class="display-1 text-secondary opacity-25">
+                                    <i class="bi bi-person-circle"></i>
+                                </div>
+                            {% endif %}
                             <span class="badge {% if user_obj.role == 'admin' %}bg-danger{% elif user_obj.role == 'teacher' %}bg-warning{% else %}bg-info{% endif %} fs-7 mt-2">
                                 {{ user_obj.get_role_display }}
                             </span>

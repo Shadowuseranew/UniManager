@@ -84,14 +84,13 @@ class Command(BaseCommand):
                     last_name=last,
                     role='teacher',
                 )
-                TeacherProfile.objects.create(
-                    user=user,
-                    specialization=random.choice([
-                        'Matematika', 'Fizika', 'Kimyo', 'Informatika',
-                        'Filologiya', 'Tarix', 'Huquq', 'Iqtisodiyot'
-                    ]),
-                    bio=f"{first} {last} - tajribali oqituvchi",
-                )
+                profile = user.teacher_profile
+                profile.specialization = random.choice([
+                    'Matematika', 'Fizika', 'Kimyo', 'Informatika',
+                    'Filologiya', 'Tarix', 'Huquq', 'Iqtisodiyot'
+                ])
+                profile.bio = f"{first} {last} - tajribali oqituvchi"
+                profile.save()
             self.stdout.write(f"  {to_create} ta oqituvchi yaratildi")
 
         students_count = User.objects.filter(role='student').count()

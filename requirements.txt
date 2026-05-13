@@ -1,6 +1,7 @@
 asgiref==3.11.1
 Faker==40.15.0
 Django==6.0.4
+whitenoise==6.9.0
 django-environ==0.13.0
 djangorestframework==3.17.1
 openpyxl==3.1.5

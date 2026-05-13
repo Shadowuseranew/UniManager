@@ -1,6 +1,27 @@
 {% extends base_template %}
 
 {% block content %}
+<style>
+.user-form input, .user-form select, .user-form textarea {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.user-form input:focus, .user-form select:focus, .user-form textarea:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+}
+</style>
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="card shadow-sm border-0">
@@ -10,9 +31,23 @@
                 </h5>
             </div>
             <div class="card-body">
-                <form method="post">
+                <form method="post" class="user-form">
                     {% csrf_token %}
-                    {{ form.as_p }}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            {{ field.label }}
+                            {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% for error in field.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
                     <div class="mt-4">
                         <button type="submit" class="btn btn-primary">Saqlash</button>
                         <a href="{% url 'user_list' %}" class="btn btn-outline-secondary">Bekor qilish</a>

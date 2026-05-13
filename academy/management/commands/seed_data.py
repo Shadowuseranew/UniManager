@@ -8,7 +8,7 @@ class Command(BaseCommand):
     help = 'Malumotlar bilan toldirish: 40 oqituvchi, 400 talaba'
 
     def handle(self, *args, **options):
-        fake = Faker('uz_UZ')
+        fake = Faker()
         self.stdout.write("Malumotlar yaratilmoqda...")
 
         if Subject.objects.count() == 0:

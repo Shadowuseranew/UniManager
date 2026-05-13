@@ -71,8 +71,8 @@ class Command(BaseCommand):
             self.stdout.write("  1 ta semestr yaratildi")
 
         teachers_count = User.objects.filter(role='teacher').count()
-        if teachers_count < 40:
-            to_create = 40 - teachers_count
+        if teachers_count < 5:
+            to_create = 5 - teachers_count
             for i in range(to_create):
                 first = fake.first_name()
                 last = fake.last_name()
@@ -94,8 +94,8 @@ class Command(BaseCommand):
             self.stdout.write(f"  {to_create} ta oqituvchi yaratildi")
 
         students_count = User.objects.filter(role='student').count()
-        if students_count < 400:
-            to_create = 400 - students_count
+        if students_count < 10:
+            to_create = 10 - students_count
             for i in range(to_create):
                 first = fake.first_name()
                 last = fake.last_name()

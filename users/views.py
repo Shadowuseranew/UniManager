@@ -39,11 +39,12 @@ def teacher_add(request):
             user = form.save(commit=False)
             user.role = 'teacher'
             user.save()
-            TeacherProfile.objects.create(
-                user=user,
-                specialization=form.cleaned_data.get('specialization'),
-                bio=form.cleaned_data.get('bio')
-            )
+            # Signal PROFILE_REGISTRY orqali TeacherProfile avtomat yaratiladi,
+            # shuning uchun faqat forma ma'lumotlarini yangilaymiz
+            profile = user.teacher_profile
+            profile.specialization = form.cleaned_data.get('specialization')
+            profile.bio = form.cleaned_data.get('bio')
+            profile.save()
             log_action(request, 'create', 'User', user, f"O'qituvchi qo'shildi: {user.username}")
             messages.success(request, "O'qituvchi muvaffaqiyatli qo'shildi.")
             return redirect('user_list')

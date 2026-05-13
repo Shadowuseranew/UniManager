@@ -34,11 +34,11 @@
 
                 {% if user.role == 'admin' or user.role == 'teacher' %}
                 <td>
-                    <a href="{% url 'subject_edit' s.pk %}" class="btn btn-sm btn-info text-white">
+                    <a href="{% url 'subject_edit' s.uuid %}" class="btn btn-sm btn-info text-white">
                         <i class="bi bi-pencil"></i>
                     </a>
                     {% if user.role == 'admin' %}
-                    <a href="{% url 'subject_delete' s.pk %}" class="btn btn-sm btn-danger">
+                    <a href="{% url 'subject_delete' s.uuid %}" class="btn btn-sm btn-danger">
                         <i class="bi bi-trash"></i>
                     </a>
                     {% endif %}

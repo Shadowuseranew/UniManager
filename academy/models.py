@@ -1,9 +1,11 @@
+import uuid
 from django.db import models
 from users.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 class Subject(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, db_index=True)
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=20, unique=True)
     credits = models.PositiveIntegerField()
@@ -126,6 +128,7 @@ class AcademicYear(models.Model):
         return self.name
 
 class Group(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     name = models.CharField(max_length=50, unique=True, verbose_name="Guruh nomi")
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True, verbose_name="Fakultet")
     course_number = models.PositiveSmallIntegerField(verbose_name="Kurs")
@@ -173,6 +176,7 @@ class Timetable(models.Model):
         if conflicts.exists():
             raise ValidationError(f"{self.classroom} xonasi bu vaqtda band!")
 class Student(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     user = models.OneToOneField('users.User', on_delete=models.CASCADE, related_name='student_profile')
     groups = models.ManyToManyField(Group, blank=True, related_name='students', verbose_name="Guruhlari")
     student_id = models.CharField(max_length=20, unique=True, verbose_name="Talaba ID")

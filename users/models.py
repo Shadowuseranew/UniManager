@@ -1,3 +1,4 @@
+import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -9,6 +10,7 @@ class User(AbstractUser):
         ('student', 'Talaba'),
         ('parent', 'Ota-ona'),
     )
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     role = models.CharField(max_length=10, choices=USER_ROLES, default='admin')
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField(blank=True, null=True)

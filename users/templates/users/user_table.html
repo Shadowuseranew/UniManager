@@ -10,7 +10,7 @@
         </thead>
         <tbody>
             {% for user in user_list %}
-            <tr class="clickable-row" data-href="{% url 'user_detail' user.pk %}">
+            <tr class="clickable-row" data-href="{% url 'user_detail' user.uuid %}">
                 <td class="ps-4">
                     <div class="d-flex align-items-center">
                         <div class="avatar-sm me-3 bg-light rounded-circle text-center" style="width: 40px; height: 40px; line-height: 40px;">
@@ -43,9 +43,9 @@
                 </td>
                 <td class="text-end pe-4">
                     <div class="btn-group">
-                        <a href="{% url 'user_detail' user.pk %}" class="btn btn-sm btn-outline-info" title="Ko'rish"><i class="bi bi-eye"></i></a>
-                        <a href="{% url 'user_edit' user.pk %}" class="btn btn-sm btn-outline-warning" title="Tahrirlash"><i class="bi bi-pencil"></i></a>
-                        <a href="{% url 'user_delete' user.pk %}" class="btn btn-sm btn-outline-danger" title="O'chirish"><i class="bi bi-trash"></i></a>
+                        <a href="{% url 'user_detail' user.uuid %}" class="btn btn-sm btn-outline-info" title="Ko'rish"><i class="bi bi-eye"></i></a>
+                        <a href="{% url 'user_edit' user.uuid %}" class="btn btn-sm btn-outline-warning" title="Tahrirlash"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'user_delete' user.uuid %}" class="btn btn-sm btn-outline-danger" title="O'chirish"><i class="bi bi-trash"></i></a>
                     </div>
                 </td>
             </tr>

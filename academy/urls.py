@@ -5,14 +5,14 @@ urlpatterns = [
     # Guruhlar (Groups)
     path('groups/', views.group_list, name='group_list'),
     path('groups/add/', views.group_add, name='group_add'),
-    path('groups/edit/<int:pk>/', views.group_edit, name='group_edit'),
-    path('groups/delete/<int:pk>/', views.group_delete, name='group_delete'),
+    path('groups/edit/<uuid:uuid>/', views.group_edit, name='group_edit'),
+    path('groups/delete/<uuid:uuid>/', views.group_delete, name='group_delete'),
 
     # Fanlar (Subjects)
     path('subjects/', views.subject_list, name='subject_list'),
     path('subjects/add/', views.subject_add, name='subject_add'),
-    path('subjects/edit/<int:pk>/', views.subject_edit, name='subject_edit'),
-    path('subjects/delete/<int:pk>/', views.subject_delete, name='subject_delete'),
+    path('subjects/edit/<uuid:uuid>/', views.subject_edit, name='subject_edit'),
+    path('subjects/delete/<uuid:uuid>/', views.subject_delete, name='subject_delete'),
 
     # Xonalar (Classrooms)
     path('classrooms/', views.classroom_list, name='classroom_list'),
@@ -32,9 +32,9 @@ urlpatterns = [
     path('teacher/dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('journal/<int:lesson_id>/', views.journal_view, name='journal_view'),
-    path('subject/<int:subject_id>/journal/', views.grade_journal, name='grade_journal'),
+    path('subject/<uuid:uuid>/journal/', views.grade_journal, name='grade_journal'),
     path('journal/fill/<int:timetable_id>/', views.fill_journal, name='fill_journal'),
-    path('groups/<int:pk>/', views.group_detail, name='group_detail'),
+    path('groups/<uuid:uuid>/', views.group_detail, name='group_detail'),
     path('timetable/list/', views.timetable_list, name='timetable_list'),
 
     # Semestrlar
@@ -63,13 +63,13 @@ urlpatterns = [
     path('calendar/', views.calendar_view, name='calendar_view'),
 
     # Hisobot eksport
-    path('export/grades/<int:subject_id>/', views.export_grades, name='export_grades'),
+    path('export/grades/<uuid:uuid>/', views.export_grades, name='export_grades'),
 
 
 
     # Ota-ona (Parent)
     path('parent/dashboard/', views.parent_dashboard, name='parent_dashboard'),
-    path('parent/student/<int:student_id>/', views.parent_student_detail, name='parent_student_detail'),
+    path('parent/student/<uuid:uuid>/', views.parent_student_detail, name='parent_student_detail'),
 
     path('chat/', views.chat_assistant, name='chat_assistant'),
 ]

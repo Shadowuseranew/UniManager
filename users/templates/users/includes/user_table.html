@@ -50,10 +50,10 @@
                 {% endif %}
                 <td class="text-end pe-4">
                     <div class="btn-group">
-                        <a href="{% url 'user_edit' user_obj.pk %}" class="btn btn-sm btn-outline-primary" title="Tahrirlash">
+                        <a href="{% url 'user_edit' user_obj.uuid %}" class="btn btn-sm btn-outline-primary" title="Tahrirlash">
                             <i class="bi bi-pencil"></i>
                         </a>
-                        <a href="{% url 'user_delete' user_obj.pk %}" class="btn btn-sm btn-outline-danger" title="O'chirish">
+                        <a href="{% url 'user_delete' user_obj.uuid %}" class="btn btn-sm btn-outline-danger" title="O'chirish">
                             <i class="bi bi-trash"></i>
                         </a>
                     </div>

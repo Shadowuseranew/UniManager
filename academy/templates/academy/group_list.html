@@ -27,9 +27,9 @@
                     </div>
                     {% if user.role == 'admin' %}
                     <div class="mt-2 d-flex justify-content-center gap-2">
-                        <a href="{% url 'group_edit' group.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                        <a href="{% url 'group_delete' group.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
-                        <a href="{% url 'group_detail' group.pk %}" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a>
+                        <a href="{% url 'group_edit' group.uuid %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'group_delete' group.uuid %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                        <a href="{% url 'group_detail' group.uuid %}" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a>
                     </div>
                     {% endif %}
                 </div>

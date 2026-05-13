@@ -102,8 +102,8 @@ def user_add(request):
 
 @login_required
 @admin_only
-def user_edit(request, pk):
-    user_obj = get_object_or_404(User, pk=pk)
+def user_edit(request, uuid):
+    user_obj = get_object_or_404(User, uuid=uuid)
     
     # Foydalanuvchiga tegishli talaba profilini olish (agar bo'lsa)
     student_profile = getattr(user_obj, 'student_profile', None)
@@ -148,15 +148,15 @@ def user_edit(request, pk):
 
 @login_required
 @admin_only
-def user_detail(request, pk):
+def user_detail(request, uuid):
     """Foydalanuvchi haqida batafsil ma'lumot sahifasi"""
-    user_obj = get_object_or_404(User.objects.prefetch_related('student_profile__groups'), pk=pk)
+    user_obj = get_object_or_404(User.objects.prefetch_related('student_profile__groups'), uuid=uuid)
     return render(request, 'users/user_detail.html', {'user_obj': user_obj})
 
 @login_required
 @admin_only
-def user_delete(request, pk):
-    user_obj = get_object_or_404(User, pk=pk)
+def user_delete(request, uuid):
+    user_obj = get_object_or_404(User, uuid=uuid)
     
     if request.method == "POST":
         log_action(request, 'delete', 'User', user_obj, f"Foydalanuvchi o'chirildi: {user_obj.username}")

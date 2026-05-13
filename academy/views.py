@@ -43,8 +43,8 @@ def subject_add(request):
 # Fan tahrirlash (Faqat Admin)
 @login_required
 @admin_only
-def subject_edit(request, pk):
-    subject = get_object_or_404(Subject, pk=pk)
+def subject_edit(request, uuid):
+    subject = get_object_or_404(Subject, uuid=uuid)
     if request.method == "POST":
         form = SubjectForm(request.POST, instance=subject)
         if form.is_valid():
@@ -58,8 +58,8 @@ def subject_edit(request, pk):
 # Fan o'chirish (Faqat Admin)
 @login_required
 @admin_only
-def subject_delete(request, pk):
-    subject = get_object_or_404(Subject, pk=pk)
+def subject_delete(request, uuid):
+    subject = get_object_or_404(Subject, uuid=uuid)
     if request.method == "POST":
         log_action(request, 'delete', 'Subject', subject, f"Fan o'chirildi: {subject.name}")
         subject.delete()
@@ -457,8 +457,8 @@ def parent_dashboard(request):
 
 @login_required
 @parent_only
-def parent_student_detail(request, student_id):
-    student = get_object_or_404(Student.objects.select_related('user'), pk=student_id, parent=request.user)
+def parent_student_detail(request, uuid):
+    student = get_object_or_404(Student.objects.select_related('user'), uuid=uuid, parent=request.user)
     return render(request, 'academy/parent_student_detail.html', {
         'student': student,
         'enrollments': Enrollment.objects.filter(student=student.user).select_related('subject'),
@@ -548,8 +548,8 @@ def group_add(request):
     })
 
 @login_required
-def grade_journal(request, subject_id):
-    subject = get_object_or_404(Subject, id=subject_id)
+def grade_journal(request, uuid):
+    subject = get_object_or_404(Subject, uuid=uuid)
     # Ushbu fanga yozilgan barcha talabalarni guruhlari bilan olish
     enrollments = Enrollment.objects.filter(subject=subject).select_related('student', 'student__student_profile')
 
@@ -564,15 +564,15 @@ def grade_journal(request, subject_id):
                     defaults={'score': float(value)}
                 )
         messages.success(request, f"{subject.name} fanidan ballar saqlandi!")
-        return redirect('grade_journal', subject_id=subject.id)
+        return redirect('grade_journal', uuid=subject.uuid)
 
     return render(request, 'academy/grade_journal.html', {
         'subject': subject,
         'enrollments': enrollments
     })
 
-def group_detail(request, pk):
-    group = get_object_or_404(Group, pk=pk)
+def group_detail(request, uuid):
+    group = get_object_or_404(Group, uuid=uuid)
     students = group.students.all().select_related('user')
     
     if request.method == "POST" and request.user.role in ['admin', 'teacher']:
@@ -582,7 +582,7 @@ def group_detail(request, pk):
             for s in added:
                 s.groups.add(group)
             messages.success(request, f"{len(added)} ta talaba guruhga qo'shildi!")
-        return redirect('group_detail', pk=group.pk)
+        return redirect('group_detail', uuid=group.uuid)
     
     # Guruhga kirmagan talabalar
     available_students = Student.objects.exclude(groups=group).select_related('user')
@@ -596,8 +596,8 @@ def group_detail(request, pk):
 
 @login_required
 @admin_only
-def group_edit(request, pk):
-    group = get_object_or_404(Group, pk=pk)
+def group_edit(request, uuid):
+    group = get_object_or_404(Group, uuid=uuid)
     if request.method == "POST":
         form = GroupForm(request.POST, instance=group)
         if form.is_valid():
@@ -611,8 +611,8 @@ def group_edit(request, pk):
 
 @login_required
 @admin_only
-def group_delete(request, pk):
-    group = get_object_or_404(Group, pk=pk)
+def group_delete(request, uuid):
+    group = get_object_or_404(Group, uuid=uuid)
     if request.method == "POST":
         log_action(request, 'delete', 'Group', group, f"Guruh o'chirildi: {group.name}")
         group.delete()
@@ -808,8 +808,8 @@ def calendar_view(request):
     })
 
 @login_required
-def export_grades(request, subject_id):
-    subject = get_object_or_404(Subject, pk=subject_id)
+def export_grades(request, uuid):
+    subject = get_object_or_404(Subject, uuid=uuid)
     enrollments = Enrollment.objects.filter(subject=subject).select_related('student', 'student__student_profile')
 
     grade_map = {}

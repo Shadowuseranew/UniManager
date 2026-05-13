@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView
 from .models import User, TeacherProfile
 from .forms import UserCreationForm, AdminAddForm, TeacherAddForm, StudentAddForm, ParentAddForm
 from .decorators import admin_only
@@ -7,6 +8,17 @@ from academy.models import Student
 from django.contrib import messages
 from django.db.models import Q
 from academy.audit_logger import log_action
+
+class RoleBasedLoginView(LoginView):
+    def get_success_url(self):
+        role_urls = {
+            'admin': 'dashboard',
+            'teacher': 'teacher_dashboard',
+            'student': 'student_dashboard',
+            'parent': 'parent_dashboard',
+        }
+        return role_urls.get(self.request.user.role, 'dashboard')
+
 
 @login_required
 @admin_only

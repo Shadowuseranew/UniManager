@@ -25,9 +25,8 @@ def handle_user_profiles(sender, instance, created, **kwargs):
     if not config:
         return
 
-    if created:
-        config['model'].objects.create(
-            user=instance, **config['defaults'](instance)
-        )
-    elif hasattr(instance, config['field']):
-        getattr(instance, config['field']).save()
+    obj, created = config['model'].objects.get_or_create(
+        user=instance, defaults=config['defaults'](instance)
+    )
+    if not created:
+        obj.save()

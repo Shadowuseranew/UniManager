@@ -1,52 +1,61 @@
 {% extends base_template %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3><i class="bi bi-journal-text"></i> Fanlar Ro'yxati</h3>
+<div class="d-flex justify-content-between align-items-center mb-4 animate-on-scroll">
+    <div>
+        <div class="d-flex align-items-center">
+            <div style="width:4px;height:28px;background:linear-gradient(135deg,#6C5CE7,#00CEC9);border-radius:2px;margin-right:12px;"></div>
+            <h3 class="fw-bold mb-0" style="color:#1a1a2e;"><i class="bi bi-journal-text me-2" style="color:var(--primary);"></i> Fanlar Ro'yxati</h3>
+        </div>
+    </div>
 
     {% if user.role == 'admin' %}
-        <a href="{% url 'subject_add' %}" class="btn btn-success">
-            <i class="bi bi-plus-circle"></i> Yangi fan qo'shish
+        <a href="{% url 'subject_add' %}" class="btn btn-success rounded-pill px-4">
+            <i class="bi bi-plus-circle me-1"></i> Yangi fan qo'shish
         </a>
     {% endif %}
 </div>
 
-<div class="table-responsive">
-    <table class="table table-hover">
-        <thead class="table-light">
-            <tr>
-                <th>ID</th>
-                <th>Fan kodi</th>
-                <th>Nomi</th>
-                <th>Kredit</th>
-                {% if user.role == 'admin' %}
-                <th>Amallar</th>
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for s in subjects %}
-            <tr>
-                <td>{{ s.id }}</td>
-                <td><span class="badge bg-secondary">{{ s.code }}</span></td>
-                <td><strong>{{ s.name }}</strong></td>
-                <td>{{ s.credits }}</td>
-
-                {% if user.role == 'admin' %}
-                <td>
-                    <a href="{% url 'subject_edit' s.uuid %}" class="btn btn-sm btn-info text-white">
-                        <i class="bi bi-pencil"></i>
-                    </a>
-                    <a href="{% url 'subject_delete' s.uuid %}" class="btn btn-sm btn-danger">
-                        <i class="bi bi-trash"></i>
-                    </a>
-                </td>
-                {% endif %}
-
+<div class="main-card animate-on-scroll">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fan kodi</th>
+                    <th>Nomi</th>
+                    <th>Kredit</th>
+                    {% if user.role == 'admin' %}
+                    <th>Amallar</th>
+                    {% endif %}
                 </tr>
-            {% empty %}
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for s in subjects %}
+                <tr>
+                    <td>{{ s.id }}</td>
+                    <td><span class="badge rounded-pill" style="background:#e8ecf1;color:#6c757d;">{{ s.code }}</span></td>
+                    <td class="fw-medium">{{ s.name }}</td>
+                    <td><span class="badge rounded-pill" style="background:linear-gradient(135deg,var(--primary-light),var(--primary));color:white;">{{ s.credits }} kr</span></td>
+
+                    {% if user.role == 'admin' %}
+                    <td>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'subject_edit' s.uuid %}" class="btn btn-sm btn-info text-white rounded-pill" data-bs-toggle="tooltip" title="Tahrirlash">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'subject_delete' s.uuid %}" class="btn btn-sm btn-outline-danger rounded-pill" data-bs-toggle="tooltip" title="O'chirish">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                    {% endif %}
+
+                    </tr>
+                {% empty %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

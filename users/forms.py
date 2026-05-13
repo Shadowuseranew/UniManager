@@ -53,12 +53,6 @@ class TeacherAddForm(BaseUserForm):
 
 class StudentAddForm(BaseUserForm):
     """Talaba qo'shish formasi"""
-    student_id = forms.CharField(
-        max_length=20, 
-        required=True,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Masalan: ST-2026-001'}),
-        label="Talaba ID"
-    )
     course = forms.IntegerField(
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 6}),
@@ -78,7 +72,7 @@ class StudentAddForm(BaseUserForm):
     )
 
     class Meta(BaseUserForm.Meta):
-        fields = BaseUserForm.Meta.fields + ['student_id', 'course', 'groups', 'parent']
+        fields = BaseUserForm.Meta.fields + ['course', 'groups', 'parent']
 
 class ParentAddForm(BaseUserForm):
     class Meta(BaseUserForm.Meta):

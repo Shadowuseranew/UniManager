@@ -88,7 +88,6 @@ def student_add(request):
             user.save()
             
             student = user.student_profile
-            student.student_id = form.cleaned_data.get('student_id')
             student.course = form.cleaned_data.get('course')
             student.parent = form.cleaned_data.get('parent')
             student.save()
@@ -125,14 +124,9 @@ def user_edit(request, uuid):
             
             # 2. Agar foydalanuvchi roli 'student' bo'lsa, profilni yangilaymiz
             if user.role == 'student':
-                # Agar profil mavjud bo'lmasa (masalan, oldin admin bo'lgan bo'lsa), yangi ochamiz
                 if not student_profile:
-                    student_profile = Student.objects.create(
-                        user=user,
-                        student_id=form.cleaned_data.get('student_id')
-                    )
+                    student_profile = Student.objects.create(user=user)
                 else:
-                    student_profile.student_id = form.cleaned_data.get('student_id')
                     student_profile.course = form.cleaned_data.get('course')
                     student_profile.parent = form.cleaned_data.get('parent')
                     student_profile.save()
@@ -146,7 +140,6 @@ def user_edit(request, uuid):
         # Tahrirlash sahifasi ochilganda eski ma'lumotlar formada ko'rinishi uchun:
         initial_data = {}
         if student_profile:
-            initial_data['student_id'] = student_profile.student_id
             initial_data['course'] = student_profile.course
             initial_data['groups'] = student_profile.groups.all()
             initial_data['parent'] = student_profile.parent

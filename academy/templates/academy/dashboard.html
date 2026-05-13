@@ -1,59 +1,95 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container-fluid py-4">
-    <h3 class="fw-bold text-dark mb-4"><i class="bi bi-speedometer2 text-primary me-2"></i>Boshqaruv Paneli</h3>
+<style>
+.stat-card {
+    border-radius: 16px;
+    border: none;
+    transition: 0.3s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+}
+.stat-card:hover { transform: translateY(-4px); }
+.stat-card .icon-bg {
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    font-size: 4rem;
+    opacity: 0.08;
+}
+.stat-card h4 { font-weight: 800; letter-spacing: -0.5px; }
+.stat-card small { font-weight: 500; opacity: 0.85; }
+.chart-card {
+    border-radius: 16px;
+    border: none;
+    transition: 0.3s;
+}
+.chart-card:hover { transform: translateY(-2px); }
+.chart-card .card-header {
+    background: white;
+    border-bottom: 1px solid #f0f0f0;
+    border-radius: 16px 16px 0 0 !important;
+    padding: 16px 20px;
+}
+</style>
+
+<div class="container-fluid py-4 px-0">
+    <div class="d-flex align-items-center mb-4">
+        <div style="width:4px;height:28px;background:linear-gradient(135deg,#6C5CE7,#00CEC9);border-radius:2px;margin-right:12px;"></div>
+        <h3 class="fw-bold mb-0" style="color:#1a1a2e;letter-spacing:-0.3px;">Boshqaruv Paneli</h3>
+    </div>
 
     {% if user.role == 'admin' %}
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-4 col-xl-2">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100">
-                <div class="text-primary fs-1 mb-2"><i class="bi bi-people"></i></div>
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#6C5CE7,#a29bfe);color:white;">
+                <div class="icon-bg"><i class="bi bi-people"></i></div>
                 <h4 class="fw-bold mb-0">{{ students_count }}</h4>
-                <small class="text-muted">Talabalar</small>
+                <small>Talabalar</small>
             </div>
         </div>
         <div class="col-6 col-md-4 col-xl-2">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100">
-                <div class="text-success fs-1 mb-2"><i class="bi bi-person-badge"></i></div>
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#00b894,#55efc4);color:white;">
+                <div class="icon-bg"><i class="bi bi-person-badge"></i></div>
                 <h4 class="fw-bold mb-0">{{ teachers_count }}</h4>
-                <small class="text-muted">O'qituvchilar</small>
+                <small>O'qituvchilar</small>
             </div>
         </div>
         <div class="col-6 col-md-4 col-xl-2">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100">
-                <div class="text-warning fs-1 mb-2"><i class="bi bi-book"></i></div>
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#fdcb6e,#f39c12);color:white;">
+                <div class="icon-bg"><i class="bi bi-book"></i></div>
                 <h4 class="fw-bold mb-0">{{ subjects_count }}</h4>
-                <small class="text-muted">Fanlar</small>
+                <small>Fanlar</small>
             </div>
         </div>
         <div class="col-6 col-md-4 col-xl-2">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100">
-                <div class="text-info fs-1 mb-2"><i class="bi bi-diagram-3"></i></div>
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#74b9ff,#0984e3);color:white;">
+                <div class="icon-bg"><i class="bi bi-diagram-3"></i></div>
                 <h4 class="fw-bold mb-0">{{ groups_count }}</h4>
-                <small class="text-muted">Guruhlar</small>
+                <small>Guruhlar</small>
             </div>
         </div>
         <div class="col-6 col-md-4 col-xl-2">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100">
-                <div class="text-danger fs-1 mb-2"><i class="bi bi-credit-card"></i></div>
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#fd79a8,#e84393);color:white;">
+                <div class="icon-bg"><i class="bi bi-credit-card"></i></div>
                 <h4 class="fw-bold mb-0">{{ pending_payments }}</h4>
-                <small class="text-muted">Kutilayotgan to'lov</small>
+                <small>Kutilayotgan to'lov</small>
             </div>
         </div>
         <div class="col-6 col-md-4 col-xl-2">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100">
-                <div class="text-secondary fs-1 mb-2"><i class="bi bi-calendar-check"></i></div>
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#dfe6e9,#636e72);color:white;">
+                <div class="icon-bg"><i class="bi bi-calendar-check"></i></div>
                 <h4 class="fw-bold mb-0">{{ today_lessons }}</h4>
-                <small class="text-muted">Bugungi darslar</small>
+                <small>Bugungi darslar</small>
             </div>
         </div>
     </div>
 
     <div class="row g-4 mb-4">
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-bar-chart me-2 text-primary"></i> Fanlar bo'yicha o'rtacha baho</h5>
+            <div class="chart-card card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="fw-bold mb-0" style="color:#1a1a2e;"><i class="bi bi-bar-chart me-2" style="color:#6C5CE7;"></i> Fanlar bo'yicha o'rtacha baho</h5>
                 </div>
                 <div class="card-body">
                     <canvas id="gradeChart" height="200"></canvas>
@@ -61,9 +97,9 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-pie-chart me-2 text-success"></i> Davomat</h5>
+            <div class="chart-card card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="fw-bold mb-0" style="color:#1a1a2e;"><i class="bi bi-pie-chart me-2" style="color:#00b894;"></i> Davomat</h5>
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-center">
                     <canvas id="attChart" height="200"></canvas>
@@ -71,17 +107,17 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-check-circle me-2 text-info"></i> Umumiy</h5>
+            <div class="chart-card card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="fw-bold mb-0" style="color:#1a1a2e;"><i class="bi bi-check-circle me-2" style="color:#0984e3;"></i> Umumiy</h5>
                 </div>
                 <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <div class="display-3 fw-bold text-primary">{{ att_percent }}%</div>
-                    <small class="text-muted">Davomat foizi</small>
+                    <div class="display-3 fw-bold" style="color:#6C5CE7;">{{ att_percent }}%</div>
+                    <small style="color:#a0a0b8;">Davomat foizi</small>
                     <div class="mt-2">
-                        <span class="badge bg-success me-1">{{ today_att.p }} Bor</span>
-                        <span class="badge bg-danger me-1">{{ today_att.a }} Yo'q</span>
-                        <span class="badge bg-warning text-dark">{{ today_att.l }} Kechikdi</span>
+                        <span class="badge rounded-pill me-1" style="background:linear-gradient(135deg,#00b894,#55efc4);">{{ today_att.p }} Bor</span>
+                        <span class="badge rounded-pill me-1" style="background:linear-gradient(135deg,#fd79a8,#e84393);">{{ today_att.a }} Yo'q</span>
+                        <span class="badge rounded-pill" style="background:linear-gradient(135deg,#fdcb6e,#f39c12);color:#1a1a2e;">{{ today_att.l }} Kechikdi</span>
                     </div>
                 </div>
             </div>
@@ -91,39 +127,39 @@
     {% elif user.role == 'teacher' %}
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3">
-                <div class="text-success fs-1 mb-2"><i class="bi bi-diagram-3"></i></div>
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#00b894,#55efc4);color:white;">
+                <div class="icon-bg"><i class="bi bi-diagram-3"></i></div>
                 <h4 class="fw-bold mb-0">{{ my_groups_count }}</h4>
-                <small class="text-muted">Guruhlarim</small>
+                <small>Guruhlarim</small>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3">
-                <div class="text-primary fs-1 mb-2"><i class="bi bi-book"></i></div>
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#6C5CE7,#a29bfe);color:white;">
+                <div class="icon-bg"><i class="bi bi-book"></i></div>
                 <h4 class="fw-bold mb-0">{{ my_subjects_count }}</h4>
-                <small class="text-muted">Fanlarim</small>
+                <small>Fanlarim</small>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3">
-                <div class="text-warning fs-1 mb-2"><i class="bi bi-people"></i></div>
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#fdcb6e,#f39c12);color:white;">
+                <div class="icon-bg"><i class="bi bi-people"></i></div>
                 <h4 class="fw-bold mb-0">{{ my_students_count }}</h4>
-                <small class="text-muted">Talabalarim</small>
+                <small>Talabalarim</small>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3">
-                <div class="text-info fs-1 mb-2"><i class="bi bi-calendar-check"></i></div>
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#74b9ff,#0984e3);color:white;">
+                <div class="icon-bg"><i class="bi bi-calendar-check"></i></div>
                 <h4 class="fw-bold mb-0">{{ today_lessons }}</h4>
-                <small class="text-muted">Bugungi darslar</small>
+                <small>Bugungi darslar</small>
             </div>
         </div>
     </div>
     <div class="row g-4">
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-bar-chart me-2 text-primary"></i> Fanlar bo'yicha o'rtacha baho</h5>
+            <div class="chart-card card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="fw-bold mb-0" style="color:#1a1a2e;"><i class="bi bi-bar-chart me-2" style="color:#6C5CE7;"></i> Fanlar bo'yicha o'rtacha baho</h5>
                 </div>
                 <div class="card-body">
                     <canvas id="gradeChart" height="200"></canvas>
@@ -131,9 +167,9 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-pie-chart me-2 text-success"></i> Davomat</h5>
+            <div class="chart-card card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="fw-bold mb-0" style="color:#1a1a2e;"><i class="bi bi-pie-chart me-2" style="color:#00b894;"></i> Davomat</h5>
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-center">
                     <canvas id="attChart" height="200"></canvas>
@@ -141,15 +177,15 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-check-circle me-2 text-info"></i> Natijalar</h5>
+            <div class="chart-card card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="fw-bold mb-0" style="color:#1a1a2e;"><i class="bi bi-check-circle me-2" style="color:#0984e3;"></i> Natijalar</h5>
                 </div>
                 <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <div class="display-3 fw-bold text-success">{{ grade_avg }}</div>
-                    <small class="text-muted">O'rtacha baho</small>
-                    <div class="mt-2 display-6 fw-bold text-info">{{ att_percent }}%</div>
-                    <small class="text-muted">Davomat foizi</small>
+                    <div class="display-3 fw-bold" style="color:#6C5CE7;">{{ grade_avg }}</div>
+                    <small style="color:#a0a0b8;">O'rtacha baho</small>
+                    <div class="mt-2 display-6 fw-bold" style="color:#00b894;">{{ att_percent }}%</div>
+                    <small style="color:#a0a0b8;">Davomat foizi</small>
                 </div>
             </div>
         </div>
@@ -158,32 +194,32 @@
     {% elif user.role == 'student' %}
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3">
-                <div class="text-primary fs-1 mb-2"><i class="bi bi-journal-text"></i></div>
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#6C5CE7,#a29bfe);color:white;">
+                <div class="icon-bg"><i class="bi bi-journal-text"></i></div>
                 <h4 class="fw-bold mb-0">{{ enrollments_count }}</h4>
-                <small class="text-muted">Yozilgan fanlar</small>
+                <small>Yozilgan fanlar</small>
             </div>
         </div>
         <div class="col-6 col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3">
-                <div class="text-success fs-1 mb-2"><i class="bi bi-star"></i></div>
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#00b894,#55efc4);color:white;">
+                <div class="icon-bg"><i class="bi bi-star"></i></div>
                 <h4 class="fw-bold mb-0">{{ grade_avg }}</h4>
-                <small class="text-muted">O'rtacha baho</small>
+                <small>O'rtacha baho</small>
             </div>
         </div>
         <div class="col-6 col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3">
-                <div class="text-info fs-1 mb-2"><i class="bi bi-calendar-check"></i></div>
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#74b9ff,#0984e3);color:white;">
+                <div class="icon-bg"><i class="bi bi-calendar-check"></i></div>
                 <h4 class="fw-bold mb-0">{{ today_lessons }}</h4>
-                <small class="text-muted">Bugungi darslar</small>
+                <small>Bugungi darslar</small>
             </div>
         </div>
     </div>
     <div class="row g-4">
         <div class="col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-bar-chart me-2 text-primary"></i> Baholarim</h5>
+            <div class="chart-card card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="fw-bold mb-0" style="color:#1a1a2e;"><i class="bi bi-bar-chart me-2" style="color:#6C5CE7;"></i> Baholarim</h5>
                 </div>
                 <div class="card-body">
                     <canvas id="gradeChart" height="200"></canvas>
@@ -191,9 +227,9 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-pie-chart me-2 text-success"></i> Davomatim</h5>
+            <div class="chart-card card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="fw-bold mb-0" style="color:#1a1a2e;"><i class="bi bi-pie-chart me-2" style="color:#00b894;"></i> Davomatim</h5>
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-center">
                     <canvas id="attChart" height="200"></canvas>
@@ -201,13 +237,13 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white border-bottom py-3">
-                    <h5 class="fw-bold mb-0"><i class="bi bi-check-circle me-2 text-info"></i> Natijam</h5>
+            <div class="chart-card card shadow-sm h-100">
+                <div class="card-header">
+                    <h5 class="fw-bold mb-0" style="color:#1a1a2e;"><i class="bi bi-check-circle me-2" style="color:#0984e3;"></i> Natijam</h5>
                 </div>
                 <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <div class="display-3 fw-bold text-success">{{ att_percent }}%</div>
-                    <small class="text-muted">Davomat foizi</small>
+                    <div class="display-3 fw-bold" style="color:#6C5CE7;">{{ att_percent }}%</div>
+                    <small style="color:#a0a0b8;">Davomat foizi</small>
                 </div>
             </div>
         </div>
@@ -219,9 +255,6 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
-const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-const textColor = isDark ? '#e0e0e0' : '#666';
-
 {% if subject_grades %}
 new Chart(document.getElementById('gradeChart'), {
     type: 'bar',
@@ -230,8 +263,8 @@ new Chart(document.getElementById('gradeChart'), {
         datasets: [{
             label: 'O\'rtacha baho',
             data: [{% for g in subject_grades %}{{ g.avg }},{% endfor %}],
-            backgroundColor: 'rgba(52, 152, 219, 0.7)',
-            borderColor: 'rgba(52, 152, 219, 1)',
+            backgroundColor: ['rgba(108,92,231,0.7)', 'rgba(0,206,201,0.7)', 'rgba(253,121,168,0.7)', 'rgba(116,185,255,0.7)', 'rgba(253,203,110,0.7)'],
+            borderColor: ['#6C5CE7', '#00CEC9', '#FD79A8', '#74B9FF', '#FDCB6E'],
             borderWidth: 1,
             borderRadius: 6,
         }]
@@ -240,8 +273,8 @@ new Chart(document.getElementById('gradeChart'), {
         responsive: true,
         plugins: { legend: { display: false } },
         scales: {
-            y: { beginAtZero: true, ticks: { color: textColor } },
-            x: { ticks: { color: textColor, maxRotation: 45 } }
+            y: { beginAtZero: true, ticks: { color: '#a0a0b8' } },
+            x: { ticks: { color: '#a0a0b8', maxRotation: 45 } }
         }
     }
 });
@@ -258,13 +291,13 @@ new Chart(document.getElementById('attChart'), {
                 {{ today_att.a|default:100|add:"-att_percent" }},
                 {{ today_att.l|default:0 }}
             ],
-            backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
+            backgroundColor: ['#00CEC9', '#FD79A8', '#FDCB6E'],
         }]
     },
     options: {
         responsive: true,
         plugins: {
-            legend: { position: 'bottom', labels: { color: textColor } }
+            legend: { position: 'bottom', labels: { color: '#a0a0b8' } }
         }
     }
 });

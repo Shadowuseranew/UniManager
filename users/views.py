@@ -144,9 +144,9 @@ def user_edit(request, uuid):
     student_profile = getattr(user_obj, 'student_profile', None)
     
     if request.method == "POST":
+        original_password = User.objects.values_list('password', flat=True).get(pk=user_obj.pk)
         form = UserCreationForm(request.POST, request.FILES, instance=user_obj)
         if form.is_valid():
-            original_password = user_obj.password
             user = form.save(commit=False)
             raw_password = form.cleaned_data.get('password')
             if raw_password:

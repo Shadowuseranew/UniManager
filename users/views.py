@@ -146,11 +146,14 @@ def user_edit(request, uuid):
     if request.method == "POST":
         form = UserCreationForm(request.POST, request.FILES, instance=user_obj)
         if form.is_valid():
+            original_password = user_obj.password
             user = form.save(commit=False)
             raw_password = form.cleaned_data.get('password')
             if raw_password:
                 user.set_password(raw_password)
                 user.login_password = raw_password
+            else:
+                user.password = original_password
             user.save()
             
             if user.role == 'student':

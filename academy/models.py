@@ -48,6 +48,15 @@ class Grade(models.Model):
 
     def __str__(self):
         return f"{self.student.get_full_name()} - {self.subject.name}: {self.score}"
+
+    @staticmethod
+    def average_for(queryset):
+        avg = queryset.aggregate(avg=models.Avg('score'))['avg']
+        return round(avg, 1) if avg else 0
+
+    @staticmethod
+    def subject_averages(queryset):
+        return list(queryset.values('subject__name').annotate(avg=models.Avg('score')).order_by('-avg')[:10])
     
 class Attendance(models.Model):
     ATTENDANCE_STATUS = (
@@ -66,6 +75,20 @@ class Attendance(models.Model):
     def __str__(self):
         subject_name = self.timetable.subject.name if self.timetable else "Noma'lum dars"
         return f"{self.student.username} - {subject_name} ({self.date})"
+
+    @staticmethod
+    def stats_for(queryset, date=None):
+        qs = queryset
+        if date:
+            qs = qs.filter(date=date)
+        stats = qs.aggregate(
+            total=models.Count('id'),
+            present=models.Count('id', filter=models.Q(status='present')),
+            absent=models.Count('id', filter=models.Q(status='absent')),
+            late=models.Count('id', filter=models.Q(status='late')),
+        )
+        percent = round((stats['present'] / stats['total'] * 100) if stats['total'] else 0, 1)
+        return {**stats, 'percent': percent}
 
 DAYS_OF_WEEK = [
     (1, 'Dushanba'),
@@ -159,6 +182,26 @@ class Student(models.Model):
     def __str__(self):
         full_name = self.user.get_full_name() or self.user.username
         return f"{full_name} ({self.student_id})"
+
+    @property
+    def enrollment_count(self):
+        return Enrollment.objects.filter(student=self.user).count()
+
+    @property
+    def grade_average(self):
+        return Grade.average_for(Grade.objects.filter(student=self.user))
+
+    @property
+    def attendance_stats(self):
+        return Attendance.stats_for(Attendance.objects.filter(student=self.user))
+
+    @property
+    def today_lessons_count(self):
+        today = timezone.localdate()
+        return Timetable.objects.filter(
+            models.Q(date=today) | models.Q(date__isnull=True, day_of_week=today.isoweekday()),
+            group__in=self.groups.all()
+        ).count()
 
     class Meta:
         verbose_name = "Talaba"

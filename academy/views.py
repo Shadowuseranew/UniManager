@@ -22,102 +22,51 @@ def dashboard(request):
     ctx = {}
 
     if request.user.role == 'admin':
-        students_count = User.objects.filter(role='student').count()
-        teachers_count = User.objects.filter(role='teacher').count()
-        subjects_count = Subject.objects.count()
-        groups_count = Group.objects.count()
-        pending_payments = Payment.objects.filter(status='pending').count()
-        today_lessons = Timetable.objects.filter(date=today).count()
-
-        grade_avg = Grade.objects.aggregate(Avg('score'))['score__avg'] or 0
-        att_stats = Attendance.objects.aggregate(
-            total=Count('id'),
-            present=Count('id', filter=Q(status='present')),
-        )
-        att_percent = round((att_stats['present'] / att_stats['total'] * 100) if att_stats['total'] else 0, 1)
-
-        # Baholar bo'yicha fanlar (bar chart)
-        subject_grades = Grade.objects.values('subject__name').annotate(avg=Avg('score')).order_by('-avg')[:10]
-
-        # Davomat bugun
-        today_att = Attendance.objects.filter(date=today).aggregate(
-            p=Count('id', filter=Q(status='present')),
-            a=Count('id', filter=Q(status='absent')),
-            l=Count('id', filter=Q(status='late')),
-        )
+        att_stats = Attendance.stats_for(Attendance.objects.all())
+        today_att = Attendance.stats_for(Attendance.objects.all(), date=today)
 
         ctx.update({
-            'students_count': students_count,
-            'teachers_count': teachers_count,
-            'subjects_count': subjects_count,
-            'groups_count': groups_count,
-            'pending_payments': pending_payments,
-            'today_lessons': today_lessons,
-            'grade_avg': round(grade_avg, 1),
-            'att_percent': att_percent,
-            'subject_grades': list(subject_grades),
-            'today_att': today_att,
+            'students_count': User.objects.filter(role='student').count(),
+            'teachers_count': User.objects.filter(role='teacher').count(),
+            'subjects_count': Subject.objects.count(),
+            'groups_count': Group.objects.count(),
+            'pending_payments': Payment.objects.filter(status='pending').count(),
+            'today_lessons': Timetable.objects.filter(date=today).count(),
+            'grade_avg': Grade.average_for(Grade.objects.all()),
+            'att_percent': att_stats['percent'],
+            'subject_grades': Grade.subject_averages(Grade.objects.all()),
+            'today_att': {'p': today_att['present'], 'a': today_att['absent'], 'l': today_att['late']},
         })
 
     elif request.user.role == 'teacher':
         my_groups = Group.objects.filter(teacher=request.user)
-        my_subjects = Subject.objects.filter(groups__teacher=request.user).distinct()
         my_lessons = Timetable.objects.filter(teacher=request.user)
-        my_students = Student.objects.filter(groups__in=my_groups).distinct().count()
-        today_lessons = my_lessons.filter(date=today).count()
 
-        grade_avg = Grade.objects.filter(teacher=request.user).aggregate(Avg('score'))['score__avg'] or 0
-
-        att_stats = Attendance.objects.filter(timetable__teacher=request.user).aggregate(
-            total=Count('id'),
-            present=Count('id', filter=Q(status='present')),
-        )
-        att_percent = round((att_stats['present'] / att_stats['total'] * 100) if att_stats['total'] else 0, 1)
-
-        # Fanlar bo'yicha o'rtacha baho
-        subject_grades = Grade.objects.filter(teacher=request.user).values('subject__name').annotate(avg=Avg('score'))
+        att_stats = Attendance.stats_for(Attendance.objects.filter(timetable__teacher=request.user))
 
         ctx.update({
             'my_groups_count': my_groups.count(),
-            'my_subjects_count': my_subjects.count(),
-            'my_students_count': my_students,
-            'today_lessons': today_lessons,
-            'grade_avg': round(grade_avg, 1),
-            'att_percent': att_percent,
-            'subject_grades': list(subject_grades),
+            'my_subjects_count': Subject.objects.filter(groups__teacher=request.user).distinct().count(),
+            'my_students_count': Student.objects.filter(groups__in=my_groups).distinct().count(),
+            'today_lessons': my_lessons.filter(date=today).count(),
+            'grade_avg': Grade.average_for(Grade.objects.filter(teacher=request.user)),
+            'att_percent': att_stats['percent'],
+            'subject_grades': Grade.subject_averages(Grade.objects.filter(teacher=request.user)),
         })
 
     elif request.user.role == 'student':
         try:
             profile = request.user.student_profile
-            my_groups = profile.groups.all()
         except:
-            my_groups = []
-
-        enrollments = Enrollment.objects.filter(student=request.user)
-        grade_avg = Grade.objects.filter(student=request.user).aggregate(Avg('score'))['score__avg'] or 0
-
-        att_stats = Attendance.objects.filter(student=request.user).aggregate(
-            total=Count('id'),
-            present=Count('id', filter=Q(status='present')),
-        )
-        att_percent = round((att_stats['present'] / att_stats['total'] * 100) if att_stats['total'] else 0, 1)
-
-        today_lessons = Timetable.objects.filter(
-            Q(date=today) | Q(date__isnull=True, day_of_week=today.isoweekday()),
-            group__in=my_groups
-        ).count()
-
-        # Baholar
-        grades = Grade.objects.filter(student=request.user).select_related('subject')
-        subject_grades = [{'subject__name': g.subject.name, 'avg': g.score} for g in grades]
+            profile = None
 
         ctx.update({
-            'enrollments_count': enrollments.count(),
-            'grade_avg': round(grade_avg, 1),
-            'att_percent': att_percent,
-            'today_lessons': today_lessons,
-            'subject_grades': subject_grades,
+            'enrollments_count': profile.enrollment_count if profile else 0,
+            'grade_avg': profile.grade_average if profile else 0,
+            'att_percent': profile.attendance_stats['percent'] if profile else 0,
+            'today_lessons': profile.today_lessons_count if profile else 0,
+            'subject_grades': [],
+        })
         })
 
     return render(request, 'academy/dashboard.html', ctx)

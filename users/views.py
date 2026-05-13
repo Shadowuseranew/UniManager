@@ -10,6 +10,8 @@ from django.db.models import Q
 from academy.audit_logger import log_action
 
 class RoleBasedLoginView(LoginView):
+    redirect_authenticated_user = True
+
     def get_success_url(self):
         role_urls = {
             'admin': 'dashboard',

@@ -4,7 +4,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3><i class="bi bi-journal-text"></i> Fanlar Ro'yxati</h3>
 
-    {% if user.role == 'admin' or user.role == 'teacher' %}
+    {% if user.role == 'admin' %}
         <a href="{% url 'subject_add' %}" class="btn btn-success">
             <i class="bi bi-plus-circle"></i> Yangi fan qo'shish
         </a>
@@ -19,7 +19,7 @@
                 <th>Fan kodi</th>
                 <th>Nomi</th>
                 <th>Kredit</th>
-                {% if user.role == 'admin' or user.role == 'teacher' %}
+                {% if user.role == 'admin' %}
                 <th>Amallar</th>
                 {% endif %}
             </tr>
@@ -32,16 +32,14 @@
                 <td><strong>{{ s.name }}</strong></td>
                 <td>{{ s.credits }}</td>
 
-                {% if user.role == 'admin' or user.role == 'teacher' %}
+                {% if user.role == 'admin' %}
                 <td>
                     <a href="{% url 'subject_edit' s.uuid %}" class="btn btn-sm btn-info text-white">
                         <i class="bi bi-pencil"></i>
                     </a>
-                    {% if user.role == 'admin' %}
                     <a href="{% url 'subject_delete' s.uuid %}" class="btn btn-sm btn-danger">
                         <i class="bi bi-trash"></i>
                     </a>
-                    {% endif %}
                 </td>
                 {% endif %}
 

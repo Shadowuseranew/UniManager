@@ -93,6 +93,8 @@ class Command(BaseCommand):
                     last_name=last,
                     role='teacher',
                 )
+                user.login_password = 'teacher123'
+                user.save(update_fields=['login_password'])
                 profile = user.teacher_profile
                 profile.specialization = random.choice([
                     'Matematika', 'Fizika', 'Kimyo', 'Informatika',
@@ -116,6 +118,8 @@ class Command(BaseCommand):
                     last_name=last,
                     role='student',
                 )
+                user.login_password = 'student123'
+                user.save(update_fields=['login_password'])
                 course = ((students_count + i) // 100) + 1
                 student = user.student_profile
                 student.student_id = f"ST-{2026-course:04d}{(students_count + i + 1):04d}"

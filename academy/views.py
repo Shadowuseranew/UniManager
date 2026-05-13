@@ -739,8 +739,9 @@ def notification_list(request):
 
 @login_required
 def notification_send(request):
-    if request.user.role != 'admin':
+    if request.user.role not in ('admin', 'teacher'):
         return redirect('dashboard')
+    is_teacher = request.user.role == 'teacher'
     if request.method == "POST":
         title = request.POST.get('title')
         message = request.POST.get('message')
@@ -748,20 +749,29 @@ def notification_send(request):
 
         recipients = []
         if recipient_group == 'all_students':
-            recipients = User.objects.filter(role='student')
-        elif recipient_group == 'all_teachers':
-            recipients = User.objects.filter(role='teacher')
-        elif recipient_group == 'everyone':
-            recipients = User.objects.all()
+            if is_teacher:
+                group_ids = request.user.led_groups.values_list('id', flat=True)
+                student_ids = Student.objects.filter(groups__in=group_ids).values_list('user_id', flat=True)
+                recipients = User.objects.filter(id__in=student_ids)
+            else:
+                recipients = User.objects.filter(role='student')
         elif recipient_group == 'by_group':
             group_ids = request.POST.getlist('group_ids')
+            if is_teacher:
+                allowed = request.user.led_groups.values_list('id', flat=True)
+                group_ids = [gid for gid in group_ids if int(gid) in allowed]
             if group_ids:
                 student_ids = Student.objects.filter(groups__in=group_ids).values_list('user_id', flat=True)
                 recipients = User.objects.filter(id__in=student_ids)
-        elif recipient_group == 'single':
-            recipient_ids = request.POST.getlist('recipients')
-            if recipient_ids:
-                recipients = User.objects.filter(pk__in=recipient_ids)
+        elif not is_teacher:
+            if recipient_group == 'all_teachers':
+                recipients = User.objects.filter(role='teacher')
+            elif recipient_group == 'everyone':
+                recipients = User.objects.all()
+            elif recipient_group == 'single':
+                recipient_ids = request.POST.getlist('recipients')
+                if recipient_ids:
+                    recipients = User.objects.filter(pk__in=recipient_ids)
 
         if title and message and recipients:
             for user in recipients:
@@ -776,8 +786,14 @@ def notification_send(request):
             return redirect('notification_list')
         else:
             messages.error(request, "Xabar yoki qabul qiluvchi topilmadi!")
-    all_users = User.objects.all().order_by('role', 'username')
-    groups = Group.objects.all()
+    if is_teacher:
+        groups = request.user.led_groups.all()
+        all_users = User.objects.filter(
+            student_profile__groups__in=groups
+        ).distinct().order_by('role', 'username')
+    else:
+        all_users = User.objects.all().order_by('role', 'username')
+        groups = Group.objects.all()
     return render(request, 'academy/notification_form.html', {'all_users': all_users, 'groups': groups})
 
 @login_required

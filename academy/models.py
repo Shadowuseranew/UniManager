@@ -208,6 +208,42 @@ class Student(models.Model):
             group__in=self.groups.all()
         ).count()
 
+    def subject_grades_map(self):
+        ids = self.enrollments.values_list('subject_id', flat=True)
+        return {g.subject_id: g.score for g in Grade.objects.filter(student=self.user, subject_id__in=ids)}
+
+    def subject_attendance_map(self):
+        ids = self.enrollments.values_list('subject_id', flat=True)
+        att_map = {}
+        qs = Attendance.objects.filter(student=self.user, timetable__subject_id__in=ids).values(
+            'timetable__subject_id'
+        ).annotate(total=models.Count('id'), present=models.Count('id', filter=models.Q(status='present')))
+        for a in qs:
+            sid = a['timetable__subject_id']
+            tot = a['total']
+            att_map[sid] = round((a['present'] / tot * 100) if tot else 0, 1)
+        return att_map
+
+    def subject_data(self):
+        enrollments = Enrollment.objects.filter(student=self.user).select_related('subject')
+        grade_map = self.subject_grades_map()
+        att_map = self.subject_attendance_map()
+        return [{
+            'subject': en.subject.name,
+            'grade': grade_map.get(en.subject_id, 0),
+            'attendance_percent': att_map.get(en.subject_id, 0),
+        } for en in enrollments]
+
+    def today_timetable(self):
+        today = timezone.localdate()
+        return Timetable.objects.filter(
+            models.Q(date=today) | models.Q(date__isnull=True, day_of_week=today.isoweekday()),
+            group__in=self.groups.all()
+        ).select_related('subject', 'teacher', 'classroom', 'group').order_by('start_time')
+
+    def recent_payments(self, limit=5):
+        return Payment.objects.filter(student=self.user).order_by('-created_at')[:limit]
+
     class Meta:
         verbose_name = "Talaba"
         verbose_name_plural = "Talabalar"

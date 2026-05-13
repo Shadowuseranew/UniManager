@@ -18,63 +18,7 @@ from collections import defaultdict
 
 @login_required
 def dashboard(request):
-    today = timezone.localdate()
-    ctx = {}
-
-    if request.user.role == 'admin':
-        att_stats = Attendance.stats_for(Attendance.objects.all())
-        today_att = Attendance.stats_for(Attendance.objects.all(), date=today)
-
-        ctx.update({
-            'students_count': User.objects.filter(role='student').count(),
-            'teachers_count': User.objects.filter(role='teacher').count(),
-            'subjects_count': Subject.objects.count(),
-            'groups_count': Group.objects.count(),
-            'pending_payments': Payment.objects.filter(status='pending').count(),
-            'today_lessons': Timetable.objects.filter(date=today).count(),
-            'grade_avg': Grade.average_for(Grade.objects.all()),
-            'att_percent': att_stats['percent'],
-            'subject_grades': Grade.subject_averages(Grade.objects.all()),
-            'today_att': {'p': today_att['present'], 'a': today_att['absent'], 'l': today_att['late']},
-        })
-
-    elif request.user.role == 'teacher':
-        my_groups = Group.objects.filter(teacher=request.user)
-        my_lessons = Timetable.objects.filter(teacher=request.user)
-
-        att_stats = Attendance.stats_for(Attendance.objects.filter(timetable__teacher=request.user))
-
-        ctx.update({
-            'my_groups_count': my_groups.count(),
-            'my_subjects_count': Subject.objects.filter(groups__teacher=request.user).distinct().count(),
-            'my_students_count': Student.objects.filter(groups__in=my_groups).distinct().count(),
-            'today_lessons': my_lessons.filter(date=today).count(),
-            'grade_avg': Grade.average_for(Grade.objects.filter(teacher=request.user)),
-            'att_percent': att_stats['percent'],
-            'subject_grades': Grade.subject_averages(Grade.objects.filter(teacher=request.user)),
-        })
-
-    elif request.user.role == 'student':
-        try:
-            profile = request.user.student_profile
-        except:
-            profile = None
-
-        ctx.update({
-            'enrollments_count': profile.enrollment_count if profile else 0,
-            'grade_avg': profile.grade_average if profile else 0,
-            'att_percent': profile.attendance_stats['percent'] if profile else 0,
-            'today_lessons': profile.today_lessons_count if profile else 0,
-            'subject_grades': [],
-        })
-
-    elif request.user.role == 'parent':
-        children = Student.objects.filter(parent=request.user).select_related('user')
-        ctx.update({
-            'children_count': children.count(),
-        })
-
-    return render(request, 'academy/dashboard.html', ctx)
+    return render(request, 'academy/dashboard.html', request.user.dashboard_context())
 
 # Fanlar ro'yxati (Hamma ko'ra oladi)
 @login_required
@@ -499,91 +443,29 @@ def journal_view(request, lesson_id):
 @login_required
 @student_only
 def student_dashboard(request):
-    
-    # Talaba yozilgan fanlar
-    enrollments = Enrollment.objects.filter(student=request.user).select_related('subject')
-    subject_ids = enrollments.values_list('subject_id', flat=True)
-
-    grades_map = {}
-    for g in Grade.objects.filter(student=request.user, subject_id__in=subject_ids):
-        grades_map[g.subject_id] = g.score
-
-    att_map = {}
-    att_qs = Attendance.objects.filter(student=request.user, timetable__subject_id__in=subject_ids).values('timetable__subject_id').annotate(
-        total=Count('id'), present=Count('id', filter=Q(status='present'))
-    )
-    for a in att_qs:
-        sid = a['timetable__subject_id']
-        tot = a['total']
-        pct = round((a['present'] / tot * 100) if tot else 0, 1)
-        att_map[sid] = pct
-
-    subject_data = []
-    for en in enrollments:
-        subject_data.append({
-            'subject': en.subject.name,
-            'grade': grades_map.get(en.subject_id, 0),
-            'attendance_percent': att_map.get(en.subject_id, 0),
-        })
-
+    profile = getattr(request.user, 'student_profile', None)
     return render(request, 'academy/student_dashboard.html', {
-        'subject_data': subject_data
+        'subject_data': profile.subject_data() if profile else []
     })
 
 @login_required
 @parent_only
 def parent_dashboard(request):
-    children = Student.objects.filter(parent=request.user).select_related('user')
-    children_data = []
-    for child in children:
-        enrollments = Enrollment.objects.filter(student=child.user).select_related('subject')
-        grade_map = {}
-        for g in Grade.objects.filter(student=child.user, subject_id__in=enrollments.values_list('subject_id', flat=True)):
-            grade_map[g.subject_id] = g.score
-        children_data.append({
-            'student': child,
-            'enrollments': enrollments,
-            'grade_avg': child.grade_average,
-            'att_stats': child.attendance_stats,
-            'grade_map': grade_map,
-        })
-    return render(request, 'academy/parent_dashboard.html', {'children_data': children_data})
+    return render(request, 'academy/parent_dashboard.html', {
+        'children_data': request.user.parent_children_data()
+    })
 
 @login_required
 @parent_only
 def parent_student_detail(request, student_id):
     student = get_object_or_404(Student.objects.select_related('user'), pk=student_id, parent=request.user)
-    enrollments = Enrollment.objects.filter(student=student.user).select_related('subject')
-    subject_ids = enrollments.values_list('subject_id', flat=True)
-
-    grades = Grade.objects.filter(student=student.user, subject_id__in=subject_ids)
-    grade_map = {g.subject_id: g.score for g in grades}
-
-    att_map = {}
-    att_qs = Attendance.objects.filter(student=student.user, timetable__subject_id__in=subject_ids).values('timetable__subject_id').annotate(
-        total=Count('id'), present=Count('id', filter=Q(status='present'))
-    )
-    for a in att_qs:
-        sid = a['timetable__subject_id']
-        tot = a['total']
-        pct = round((a['present'] / tot * 100) if tot else 0, 1)
-        att_map[sid] = pct
-
-    today = timezone.localdate()
-    timetable = Timetable.objects.filter(
-        Q(date=today) | Q(date__isnull=True, day_of_week=today.isoweekday()),
-        group__in=student.groups.all()
-    ).select_related('subject', 'teacher', 'classroom', 'group').order_by('start_time')
-
-    payments = Payment.objects.filter(student=student.user).order_by('-created_at')[:5]
-
     return render(request, 'academy/parent_student_detail.html', {
         'student': student,
-        'enrollments': enrollments,
-        'grade_map': grade_map,
-        'att_map': att_map,
-        'timetable': timetable,
-        'payments': payments,
+        'enrollments': Enrollment.objects.filter(student=student.user).select_related('subject'),
+        'grade_map': student.subject_grades_map(),
+        'att_map': student.subject_attendance_map(),
+        'timetable': student.today_timetable(),
+        'payments': student.recent_payments(),
     })
 
 @login_required

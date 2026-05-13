@@ -3,7 +3,7 @@
 {% block sidebar_menu %}
 <p class="menu-label text-uppercase fw-bold mb-2 ps-3 mt-3">Asosiy</p>
 <ul class="nav flex-column">
-    {% include 'includes/sidebar_link.html' with url_name='dashboard' icon='bi-speedometer2' label='Dashboard' active=request.path == '/' %}
-    {% include 'includes/sidebar_link.html' with url_name='parent_dashboard' icon='bi-graph-up-arrow' label='Farzandlarim' active='parent' in request.path %}
+    {% include 'includes/sidebar_link.html' with url_name='dashboard' icon='bi-speedometer2' label='Dashboard' exact='/' %}
+    {% include 'includes/sidebar_link.html' with url_name='parent_dashboard' icon='bi-graph-up-arrow' label='Farzandlarim' check='parent' %}
 </ul>
 {% endblock %}

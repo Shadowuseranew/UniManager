@@ -1,5 +1,5 @@
 <li class="nav-item">
-    <a href="{% url url_name %}" class="nav-link mb-1 {% if active %}active{% endif %}">
+    <a href="{% url url_name %}" class="nav-link mb-1 {% if active %}active{% elif exact and request.path == exact %}active{% elif check and check in request.path %}active{% endif %}">
         <i class="bi {{ icon }}"></i> {{ label }}
     </a>
 </li>

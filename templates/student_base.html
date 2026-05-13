@@ -3,16 +3,16 @@
 {% block sidebar_menu %}
 <p class="menu-label text-uppercase fw-bold mb-2 ps-3 mt-3">Asosiy</p>
 <ul class="nav flex-column">
-    {% include 'includes/sidebar_link.html' with url_name='dashboard' icon='bi-speedometer2' label='Dashboard' active=request.path == '/' %}
-    {% include 'includes/sidebar_link.html' with url_name='subject_list' icon='bi-book' label='Fanlar' active='subject' in request.path %}
-    {% include 'includes/sidebar_link.html' with url_name='timetable_view' icon='bi-calendar3' label='Dars Jadvali' active='timetable' in request.path %}
-    {% include 'includes/sidebar_link.html' with url_name='exam_list' icon='bi-pencil-square' label='Imtihonlar' active='exam' in request.path %}
-    {% include 'includes/sidebar_link.html' with url_name='material_list' icon='bi-folder' label='Materiallar' active='material' in request.path %}
-    {% include 'includes/sidebar_link.html' with url_name='chat_assistant' icon='bi-robot' label='AI Yordamchi' active='chat' in request.path %}
+    {% include 'includes/sidebar_link.html' with url_name='dashboard' icon='bi-speedometer2' label='Dashboard' exact='/' %}
+    {% include 'includes/sidebar_link.html' with url_name='subject_list' icon='bi-book' label='Fanlar' check='subject' %}
+    {% include 'includes/sidebar_link.html' with url_name='timetable_view' icon='bi-calendar3' label='Dars Jadvali' check='timetable' %}
+    {% include 'includes/sidebar_link.html' with url_name='exam_list' icon='bi-pencil-square' label='Imtihonlar' check='exam' %}
+    {% include 'includes/sidebar_link.html' with url_name='material_list' icon='bi-folder' label='Materiallar' check='material' %}
+    {% include 'includes/sidebar_link.html' with url_name='chat_assistant' icon='bi-robot' label='AI Yordamchi' check='chat' %}
 </ul>
 
 <p class="menu-label text-uppercase fw-bold mb-2 ps-3 mt-4">Rolga Mos</p>
 <ul class="nav flex-column">
-    {% include 'includes/sidebar_link.html' with url_name='student_dashboard' icon='bi-graph-up-arrow' label='Mening Natijalarim' active='student_dashboard' in request.path %}
+    {% include 'includes/sidebar_link.html' with url_name='student_dashboard' icon='bi-graph-up-arrow' label='Mening Natijalarim' check='student_dashboard' %}
 </ul>
 {% endblock %}

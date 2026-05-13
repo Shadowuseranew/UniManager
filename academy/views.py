@@ -731,6 +731,7 @@ def material_delete(request, pk):
     return render(request, 'academy/material_confirm_delete.html', {'material': material})
 
 @login_required
+@login_required
 def notification_list(request):
     if request.user.role == 'student':
         return redirect('dashboard')

@@ -22,13 +22,7 @@ class BaseUserForm(forms.ModelForm):
         }
 
     def save(self, commit=True):
-        user = super().save(commit=False)
-        password = self.cleaned_data.get("password")
-        if password:
-            user.set_password(password)
-        if commit:
-            user.save()
-        return user
+        return super().save(commit=commit)
 
 class AdminAddForm(BaseUserForm):
     """Admin qo'shish formasi"""

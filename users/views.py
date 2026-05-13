@@ -1,3 +1,6 @@
+import secrets
+import string
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
@@ -8,7 +11,23 @@ from .decorators import admin_only
 from academy.models import Student
 from django.contrib import messages
 from django.db.models import Q
+from django.utils.safestring import mark_safe
 from academy.audit_logger import log_action
+
+
+def _generate_password(length=8):
+    chars = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(chars) for _ in range(length))
+
+
+def _create_user_with_password(form, role):
+    raw_password = form.cleaned_data.get('password') or _generate_password()
+    user = form.save(commit=False)
+    user.role = role
+    user.set_password(raw_password)
+    user.save()
+    form.save_m2m()
+    return user, raw_password
 
 class RoleBasedLoginView(LoginView):
     redirect_authenticated_user = True
@@ -29,11 +48,9 @@ def admin_add(request):
     if request.method == "POST":
         form = AdminAddForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.role = 'admin'
-            user.save()
+            user, password = _create_user_with_password(form, 'admin')
             log_action(request, 'create', 'User', user, f"Admin qo'shildi: {user.username}")
-            messages.success(request, "Admin muvaffaqiyatli qo'shildi.")
+            messages.success(request, mark_safe(f"Admin qo'shildi. Parol: <strong>{password}</strong>"))
             return redirect('user_list')
     else:
         form = AdminAddForm()
@@ -45,17 +62,13 @@ def teacher_add(request):
     if request.method == "POST":
         form = TeacherAddForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.role = 'teacher'
-            user.save()
-            # Signal PROFILE_REGISTRY orqali TeacherProfile avtomat yaratiladi,
-            # shuning uchun faqat forma ma'lumotlarini yangilaymiz
+            user, password = _create_user_with_password(form, 'teacher')
             profile = user.teacher_profile
             profile.specialization = form.cleaned_data.get('specialization')
             profile.bio = form.cleaned_data.get('bio')
             profile.save()
             log_action(request, 'create', 'User', user, f"O'qituvchi qo'shildi: {user.username}")
-            messages.success(request, "O'qituvchi muvaffaqiyatli qo'shildi.")
+            messages.success(request, mark_safe(f"O'qituvchi qo'shildi. Parol: <strong>{password}</strong>"))
             return redirect('user_list')
     else:
         form = TeacherAddForm()
@@ -67,11 +80,9 @@ def parent_add(request):
     if request.method == "POST":
         form = ParentAddForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.role = 'parent'
-            user.save()
+            user, password = _create_user_with_password(form, 'parent')
             log_action(request, 'create', 'User', user, f"Ota-ona qo'shildi: {user.username}")
-            messages.success(request, "Ota-ona muvaffaqiyatli qo'shildi.")
+            messages.success(request, mark_safe(f"Ota-ona qo'shildi. Parol: <strong>{password}</strong>"))
             return redirect('user_list')
     else:
         form = ParentAddForm()
@@ -83,21 +94,16 @@ def student_add(request):
     if request.method == "POST":
         form = StudentAddForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.role = 'student'
-            user.save()
-            
+            user, password = _create_user_with_password(form, 'student')
             student = user.student_profile
             student.course = form.cleaned_data.get('course')
             student.parent = form.cleaned_data.get('parent')
             student.save()
-            
             groups = form.cleaned_data.get('groups')
             if groups:
                 student.groups.set(groups)
-                
             log_action(request, 'create', 'User', user, f"Talaba qo'shildi: {user.username}")
-            messages.success(request, "Talaba muvaffaqiyatli qo'shildi.")
+            messages.success(request, mark_safe(f"Talaba qo'shildi. Parol: <strong>{password}</strong>"))
             return redirect('user_list')
     else:
         form = StudentAddForm()

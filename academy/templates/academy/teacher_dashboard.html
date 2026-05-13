@@ -6,7 +6,7 @@
 <div class="row">
     {% for lesson in lessons %}
     <div class="col-md-4 mb-4 stagger-item">
-        <div class="card h-100 shadow-sm border-0 border-start border-primary border-4 card-tilt" style="transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),box-shadow 0.3s ease;">
+        <div class="card h-100 shadow-sm border-0 border-start border-primary border-4" style="transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),box-shadow 0.3s ease;">
             <div class="card-body">
                 <h5 class="card-title text-primary">{{ lesson.subject.name }}</h5>
                 <p class="card-text mb-1"><strong>Guruh:</strong> {{ lesson.group.name }}</p>

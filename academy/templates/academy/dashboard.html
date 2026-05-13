@@ -42,42 +42,42 @@
     {% if user.role == 'admin' %}
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-4 col-xl-2 stagger-item">
-            <div class="stat-card card text-center p-3 h-100 shadow-sm card-tilt" style="background:linear-gradient(135deg,#6C5CE7,#a29bfe);color:white;">
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#6C5CE7,#a29bfe);color:white;">
                 <div class="icon-bg"><i class="bi bi-people"></i></div>
                 <h4 class="fw-bold mb-0 stat-number" data-count="{{ students_count }}">0</h4>
                 <small>Talabalar</small>
             </div>
         </div>
         <div class="col-6 col-md-4 col-xl-2 stagger-item">
-            <div class="stat-card card text-center p-3 h-100 shadow-sm card-tilt" style="background:linear-gradient(135deg,#00b894,#55efc4);color:white;">
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#00b894,#55efc4);color:white;">
                 <div class="icon-bg"><i class="bi bi-person-badge"></i></div>
                 <h4 class="fw-bold mb-0 stat-number" data-count="{{ teachers_count }}">0</h4>
                 <small>O'qituvchilar</small>
             </div>
         </div>
         <div class="col-6 col-md-4 col-xl-2 stagger-item">
-            <div class="stat-card card text-center p-3 h-100 shadow-sm card-tilt" style="background:linear-gradient(135deg,#fdcb6e,#f39c12);color:white;">
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#fdcb6e,#f39c12);color:white;">
                 <div class="icon-bg"><i class="bi bi-book"></i></div>
                 <h4 class="fw-bold mb-0 stat-number" data-count="{{ subjects_count }}">0</h4>
                 <small>Fanlar</small>
             </div>
         </div>
         <div class="col-6 col-md-4 col-xl-2 stagger-item">
-            <div class="stat-card card text-center p-3 h-100 shadow-sm card-tilt" style="background:linear-gradient(135deg,#74b9ff,#0984e3);color:white;">
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#74b9ff,#0984e3);color:white;">
                 <div class="icon-bg"><i class="bi bi-diagram-3"></i></div>
                 <h4 class="fw-bold mb-0 stat-number" data-count="{{ groups_count }}">0</h4>
                 <small>Guruhlar</small>
             </div>
         </div>
         <div class="col-6 col-md-4 col-xl-2 stagger-item">
-            <div class="stat-card card text-center p-3 h-100 shadow-sm card-tilt" style="background:linear-gradient(135deg,#fd79a8,#e84393);color:white;">
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#fd79a8,#e84393);color:white;">
                 <div class="icon-bg"><i class="bi bi-credit-card"></i></div>
                 <h4 class="fw-bold mb-0 stat-number" data-count="{{ pending_payments }}">0</h4>
                 <small>Kutilayotgan to'lov</small>
             </div>
         </div>
         <div class="col-6 col-md-4 col-xl-2 stagger-item">
-            <div class="stat-card card text-center p-3 h-100 shadow-sm card-tilt" style="background:linear-gradient(135deg,#dfe6e9,#636e72);color:white;">
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#dfe6e9,#636e72);color:white;">
                 <div class="icon-bg"><i class="bi bi-calendar-check"></i></div>
                 <h4 class="fw-bold mb-0 stat-number" data-count="{{ today_lessons }}">0</h4>
                 <small>Bugungi darslar</small>
@@ -127,28 +127,28 @@
     {% elif user.role == 'teacher' %}
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3 stagger-item">
-            <div class="stat-card card text-center p-3 h-100 shadow-sm card-tilt" style="background:linear-gradient(135deg,#00b894,#55efc4);color:white;">
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#00b894,#55efc4);color:white;">
                 <div class="icon-bg"><i class="bi bi-diagram-3"></i></div>
                 <h4 class="fw-bold mb-0 stat-number" data-count="{{ my_groups_count }}">0</h4>
                 <small>Guruhlarim</small>
             </div>
         </div>
         <div class="col-6 col-md-3 stagger-item">
-            <div class="stat-card card text-center p-3 h-100 shadow-sm card-tilt" style="background:linear-gradient(135deg,#6C5CE7,#a29bfe);color:white;">
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#6C5CE7,#a29bfe);color:white;">
                 <div class="icon-bg"><i class="bi bi-book"></i></div>
                 <h4 class="fw-bold mb-0 stat-number" data-count="{{ my_subjects_count }}">0</h4>
                 <small>Fanlarim</small>
             </div>
         </div>
         <div class="col-6 col-md-3 stagger-item">
-            <div class="stat-card card text-center p-3 h-100 shadow-sm card-tilt" style="background:linear-gradient(135deg,#fdcb6e,#f39c12);color:white;">
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#fdcb6e,#f39c12);color:white;">
                 <div class="icon-bg"><i class="bi bi-people"></i></div>
                 <h4 class="fw-bold mb-0 stat-number" data-count="{{ my_students_count }}">0</h4>
                 <small>Talabalarim</small>
             </div>
         </div>
         <div class="col-6 col-md-3 stagger-item">
-            <div class="stat-card card text-center p-3 h-100 shadow-sm card-tilt" style="background:linear-gradient(135deg,#74b9ff,#0984e3);color:white;">
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#74b9ff,#0984e3);color:white;">
                 <div class="icon-bg"><i class="bi bi-calendar-check"></i></div>
                 <h4 class="fw-bold mb-0 stat-number" data-count="{{ today_lessons }}">0</h4>
                 <small>Bugungi darslar</small>
@@ -194,21 +194,21 @@
     {% elif user.role == 'student' %}
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-4 stagger-item">
-            <div class="stat-card card text-center p-3 h-100 shadow-sm card-tilt" style="background:linear-gradient(135deg,#6C5CE7,#a29bfe);color:white;">
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#6C5CE7,#a29bfe);color:white;">
                 <div class="icon-bg"><i class="bi bi-journal-text"></i></div>
                 <h4 class="fw-bold mb-0 stat-number" data-count="{{ enrollments_count }}">0</h4>
                 <small>Yozilgan fanlar</small>
             </div>
         </div>
         <div class="col-6 col-md-4 stagger-item">
-            <div class="stat-card card text-center p-3 h-100 shadow-sm card-tilt" style="background:linear-gradient(135deg,#00b894,#55efc4);color:white;">
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#00b894,#55efc4);color:white;">
                 <div class="icon-bg"><i class="bi bi-star"></i></div>
                 <h4 class="fw-bold mb-0 stat-number" data-count="{{ grade_avg }}">0</h4>
                 <small>O'rtacha baho</small>
             </div>
         </div>
         <div class="col-6 col-md-4 stagger-item">
-            <div class="stat-card card text-center p-3 h-100 shadow-sm card-tilt" style="background:linear-gradient(135deg,#74b9ff,#0984e3);color:white;">
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#74b9ff,#0984e3);color:white;">
                 <div class="icon-bg"><i class="bi bi-calendar-check"></i></div>
                 <h4 class="fw-bold mb-0 stat-number" data-count="{{ today_lessons }}">0</h4>
                 <small>Bugungi darslar</small>
@@ -252,7 +252,7 @@
     {% elif user.role == 'parent' %}
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-4 stagger-item">
-            <div class="stat-card card text-center p-3 h-100 shadow-sm card-tilt" style="background:linear-gradient(135deg,#00b894,#55efc4);color:white;">
+            <div class="stat-card card text-center p-3 h-100 shadow-sm" style="background:linear-gradient(135deg,#00b894,#55efc4);color:white;">
                 <div class="icon-bg"><i class="bi bi-people"></i></div>
                 <h4 class="fw-bold mb-0 stat-number" data-count="{{ children_count }}">0</h4>
                 <small>Farzandlarim</small>

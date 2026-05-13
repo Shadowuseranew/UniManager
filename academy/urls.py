@@ -67,5 +67,9 @@ urlpatterns = [
 
 
 
+    # Ota-ona (Parent)
+    path('parent/dashboard/', views.parent_dashboard, name='parent_dashboard'),
+    path('parent/student/<int:student_id>/', views.parent_student_detail, name='parent_student_detail'),
+
     path('chat/', views.chat_assistant, name='chat_assistant'),
 ]

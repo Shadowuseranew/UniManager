@@ -7,6 +7,7 @@ class User(AbstractUser):
         ('admin', 'Admin'),
         ('teacher', 'O\'qituvchi'),
         ('student', 'Talaba'),
+        ('parent', 'Ota-ona'),
     )
     role = models.CharField(max_length=10, choices=USER_ROLES, default='admin')
     phone_number = models.CharField(max_length=15, blank=True, null=True)

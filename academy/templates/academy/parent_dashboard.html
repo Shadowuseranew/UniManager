@@ -1,0 +1,100 @@
+{% extends base_template %}
+{% load academy_tags %}
+{% block title %}Farzandlarim{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0" style="color:#1a1a2e;letter-spacing:-0.3px;">
+        <i class="bi bi-people-fill me-2" style="color:var(--primary);"></i>Farzandlarim
+    </h4>
+</div>
+
+{% if children_data %}
+    <div class="row g-4">
+        {% for item in children_data %}
+            <div class="col-lg-6">
+                <div class="main-card h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="user-profile-img me-3" style="width:48px;height:48px;font-size:1.2rem;">
+                            {{ item.student.user.first_name|first|upper }}{{ item.student.user.last_name|first|upper }}
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-1">{{ item.student.user.get_full_name|default:item.student.user.username }}</h5>
+                            <small style="color:#a0a0b8;">
+                                <i class="bi bi-person-badge me-1"></i>{{ item.student.student_id }}
+                                {% if item.student.course %} · <i class="bi bi-mortarboard me-1"></i>{{ item.student.course }}-kurs{% endif %}
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-4">
+                            <div class="text-center p-2 rounded-3" style="background:#f8f9fa;">
+                                <div class="fw-bold fs-5" style="color:var(--primary);">{{ item.enrollments|length }}</div>
+                                <small style="color:#a0a0b8;">Fanlar</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-center p-2 rounded-3" style="background:#f8f9fa;">
+                                <div class="fw-bold fs-5" style="color:var(--secondary);">{{ item.grade_avg }}</div>
+                                <small style="color:#a0a0b8;">O'rtacha</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-center p-2 rounded-3" style="background:#f8f9fa;">
+                                <div class="fw-bold fs-5" style="color:var(--accent);">{{ item.att_stats.percent }}%</div>
+                                <small style="color:#a0a0b8;">Davomat</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if item.enrollments %}
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Fan</th>
+                                        <th class="text-center">Baho</th>
+                                        <th class="text-center">Davomat</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for en in item.enrollments %}
+                                        <tr>
+                                            <td>{{ en.subject.name }}</td>
+                                            <td class="text-center">
+                                                {% with grade=item.grade_map|dict_get:en.subject_id %}
+                                                    {% if grade %}
+                                                        <span class="badge bg-primary rounded-pill">{{ grade }}</span>
+                                                    {% else %}
+                                                        <span class="text-muted">—</span>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="small">{{ item.att_stats.present }}/{{ item.att_stats.total }}</span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center mb-0 py-3"><i class="bi bi-info-circle me-1"></i>Fanlar mavjud emas</p>
+                    {% endif %}
+
+                    <div class="mt-3 text-end">
+                        <a href="{% url 'parent_student_detail' item.student.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                            <i class="bi bi-eye me-1"></i>Batafsil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="main-card text-center py-5">
+        <i class="bi bi-emoji-frown" style="font-size:3rem;color:#ddd;"></i>
+        <p class="text-muted mt-3 mb-0">Sizga biriktirilgan farzand yo'q</p>
+    </div>
+{% endif %}
+{% endblock %}

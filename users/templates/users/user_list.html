@@ -62,6 +62,11 @@
                 Adminlar <span class="badge bg-danger-subtle text-danger ms-1">{{ admins|length }}</span>
             </button>
         </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-semibold" id="parents-tab" data-bs-toggle="tab" data-bs-target="#parents" type="button" role="tab">
+                Ota-onalar <span class="badge bg-success-subtle text-success ms-1">{{ parents|length }}</span>
+            </button>
+        </li>
     </ul>
 
     <div class="card-body p-0 pt-2">
@@ -77,6 +82,10 @@
 
             <div class="tab-pane fade" id="admins" role="tabpanel">
                 {% include 'users/user_table.html' with user_list=admins type='admin' %}
+            </div>
+
+            <div class="tab-pane fade" id="parents" role="tabpanel">
+                {% include 'users/user_table.html' with user_list=parents type='parent' %}
             </div>
 
         </div>

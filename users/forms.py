@@ -70,9 +70,19 @@ class StudentAddForm(BaseUserForm):
         widget=forms.SelectMultiple(attrs={'class': 'form-control', 'style': 'height: 150px;'}),
         label="Guruhlarni tanlang"
     )
+    parent = forms.ModelChoiceField(
+        queryset=User.objects.filter(role='parent'),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Ota-ona"
+    )
 
     class Meta(BaseUserForm.Meta):
-        fields = BaseUserForm.Meta.fields + ['student_id', 'course', 'groups']
+        fields = BaseUserForm.Meta.fields + ['student_id', 'course', 'groups', 'parent']
+
+class ParentAddForm(BaseUserForm):
+    class Meta(BaseUserForm.Meta):
+        fields = BaseUserForm.Meta.fields
 
 class UserCreationForm(StudentAddForm):
     """Eski viewlar bilan moslikni ta'minlash uchun (vaqtincha)"""

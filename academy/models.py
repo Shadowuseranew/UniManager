@@ -127,7 +127,7 @@ class AcademicYear(models.Model):
 
 class Group(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name="Guruh nomi")
-    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, verbose_name="Fakultet")
+    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True, verbose_name="Fakultet")
     course_number = models.PositiveSmallIntegerField(verbose_name="Kurs")
     teacher = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True,
@@ -178,6 +178,11 @@ class Student(models.Model):
     student_id = models.CharField(max_length=20, unique=True, verbose_name="Talaba ID")
     phone_number = models.CharField(max_length=20, blank=True, verbose_name="Telefon raqami")
     course = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name="Kurs")
+    parent = models.ForeignKey(
+        'users.User', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='children', limit_choices_to={'role': 'parent'},
+        verbose_name="Ota-ona"
+    )
 
     def __str__(self):
         full_name = self.user.get_full_name() or self.user.username

@@ -17,4 +17,5 @@ def role_required(*roles):
 admin_only = role_required('admin')
 teacher_only = role_required('teacher')
 student_only = role_required('student')
+parent_only = role_required('parent')
 admin_or_teacher = role_required('admin', 'teacher')

@@ -61,6 +61,11 @@
         </a>
     </li>
     <li class="nav-item">
+        <a href="{% url 'user_list' %}#parents" class="nav-link mb-1">
+            <i class="bi bi-people"></i> Ota-onalar
+        </a>
+    </li>
+    <li class="nav-item">
         <a href="{% url 'notification_send' %}" class="nav-link mb-1 {% if 'notification' in request.path %}active{% endif %}">
             <i class="bi bi-bell"></i> Xabarlar
         </a>

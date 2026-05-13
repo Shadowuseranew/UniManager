@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import User, TeacherProfile
-from .forms import UserCreationForm, AdminAddForm, TeacherAddForm, StudentAddForm
+from .forms import UserCreationForm, AdminAddForm, TeacherAddForm, StudentAddForm, ParentAddForm
 from .decorators import admin_only
 from academy.models import Student
 from django.contrib import messages
@@ -53,6 +53,22 @@ def teacher_add(request):
 
 @login_required
 @admin_only
+def parent_add(request):
+    if request.method == "POST":
+        form = ParentAddForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.role = 'parent'
+            user.save()
+            log_action(request, 'create', 'User', user, f"Ota-ona qo'shildi: {user.username}")
+            messages.success(request, "Ota-ona muvaffaqiyatli qo'shildi.")
+            return redirect('user_list')
+    else:
+        form = ParentAddForm()
+    return render(request, 'users/user_form.html', {'form': form, 'title': "Ota-ona qo'shish"})
+
+@login_required
+@admin_only
 def student_add(request):
     if request.method == "POST":
         form = StudentAddForm(request.POST)
@@ -64,6 +80,7 @@ def student_add(request):
             student = user.student_profile
             student.student_id = form.cleaned_data.get('student_id')
             student.course = form.cleaned_data.get('course')
+            student.parent = form.cleaned_data.get('parent')
             student.save()
             
             groups = form.cleaned_data.get('groups')
@@ -107,6 +124,7 @@ def user_edit(request, pk):
                 else:
                     student_profile.student_id = form.cleaned_data.get('student_id')
                     student_profile.course = form.cleaned_data.get('course')
+                    student_profile.parent = form.cleaned_data.get('parent')
                     student_profile.save()
 
                 selected_groups = form.cleaned_data.get('groups')
@@ -121,6 +139,7 @@ def user_edit(request, pk):
             initial_data['student_id'] = student_profile.student_id
             initial_data['course'] = student_profile.course
             initial_data['groups'] = student_profile.groups.all()
+            initial_data['parent'] = student_profile.parent
             
         form = UserCreationForm(instance=user_obj, initial=initial_data)
     
@@ -170,6 +189,7 @@ def user_list(request):
     admins = [u for u in users_list if u.role == 'admin']
     teachers = [u for u in users_list if u.role == 'teacher']
     students = [u for u in users_list if u.role == 'student']
+    parents = [u for u in users_list if u.role == 'parent']
     
     # Filtrda ko'rsatish uchun barcha guruhlarni olamiz
     from academy.models import Group
@@ -179,6 +199,7 @@ def user_list(request):
         'admins': admins,
         'teachers': teachers,
         'students': students,
+        'parents': parents,
         'total_count': len(users_list),
         'all_groups': all_groups,
         'search_query': search_query,

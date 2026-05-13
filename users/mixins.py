@@ -21,3 +21,6 @@ class StudentRequiredMixin(RoleRequiredMixin):
 
 class AdminOrTeacherMixin(RoleRequiredMixin):
     allowed_roles = ['admin', 'teacher']
+
+class ParentRequiredMixin(RoleRequiredMixin):
+    allowed_roles = ['parent']

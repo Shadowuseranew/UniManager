@@ -5,5 +5,6 @@ def base_template(request):
         'admin': 'admin_base.html',
         'teacher': 'teacher_base.html',
         'student': 'student_base.html',
+        'parent': 'parent_base.html',
     }
     return {'base_template': role_map.get(request.user.role, 'base.html')}

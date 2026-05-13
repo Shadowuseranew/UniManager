@@ -4,7 +4,7 @@ from .models import Subject, Student, Enrollment, Grade, Attendance, Timetable, 
 from .forms import SubjectForm, TimetableForm, ClassroomForm, GroupForm, PaymentForm, ExamForm, StudyMaterialForm, NotificationForm, SemesterForm
 from .chat_assistant import Assistant
 from .audit_logger import log_action
-from users.decorators import admin_only, teacher_only, student_only, admin_or_teacher
+from users.decorators import admin_only, teacher_only, student_only, parent_only, admin_or_teacher
 from users.forms import StudentAddForm, TeacherAddForm, AdminAddForm
 from django.utils import timezone
 from datetime import time, timedelta
@@ -66,6 +66,12 @@ def dashboard(request):
             'att_percent': profile.attendance_stats['percent'] if profile else 0,
             'today_lessons': profile.today_lessons_count if profile else 0,
             'subject_grades': [],
+        })
+
+    elif request.user.role == 'parent':
+        children = Student.objects.filter(parent=request.user).select_related('user')
+        ctx.update({
+            'children_count': children.count(),
         })
 
     return render(request, 'academy/dashboard.html', ctx)
@@ -522,6 +528,62 @@ def student_dashboard(request):
 
     return render(request, 'academy/student_dashboard.html', {
         'subject_data': subject_data
+    })
+
+@login_required
+@parent_only
+def parent_dashboard(request):
+    children = Student.objects.filter(parent=request.user).select_related('user')
+    children_data = []
+    for child in children:
+        enrollments = Enrollment.objects.filter(student=child.user).select_related('subject')
+        grade_map = {}
+        for g in Grade.objects.filter(student=child.user, subject_id__in=enrollments.values_list('subject_id', flat=True)):
+            grade_map[g.subject_id] = g.score
+        children_data.append({
+            'student': child,
+            'enrollments': enrollments,
+            'grade_avg': child.grade_average,
+            'att_stats': child.attendance_stats,
+            'grade_map': grade_map,
+        })
+    return render(request, 'academy/parent_dashboard.html', {'children_data': children_data})
+
+@login_required
+@parent_only
+def parent_student_detail(request, student_id):
+    student = get_object_or_404(Student.objects.select_related('user'), pk=student_id, parent=request.user)
+    enrollments = Enrollment.objects.filter(student=student.user).select_related('subject')
+    subject_ids = enrollments.values_list('subject_id', flat=True)
+
+    grades = Grade.objects.filter(student=student.user, subject_id__in=subject_ids)
+    grade_map = {g.subject_id: g.score for g in grades}
+
+    att_map = {}
+    att_qs = Attendance.objects.filter(student=student.user, timetable__subject_id__in=subject_ids).values('timetable__subject_id').annotate(
+        total=Count('id'), present=Count('id', filter=Q(status='present'))
+    )
+    for a in att_qs:
+        sid = a['timetable__subject_id']
+        tot = a['total']
+        pct = round((a['present'] / tot * 100) if tot else 0, 1)
+        att_map[sid] = pct
+
+    today = timezone.localdate()
+    timetable = Timetable.objects.filter(
+        Q(date=today) | Q(date__isnull=True, day_of_week=today.isoweekday()),
+        group__in=student.groups.all()
+    ).select_related('subject', 'teacher', 'classroom', 'group').order_by('start_time')
+
+    payments = Payment.objects.filter(student=student.user).order_by('-created_at')[:5]
+
+    return render(request, 'academy/parent_student_detail.html', {
+        'student': student,
+        'enrollments': enrollments,
+        'grade_map': grade_map,
+        'att_map': att_map,
+        'timetable': timetable,
+        'payments': payments,
     })
 
 @login_required

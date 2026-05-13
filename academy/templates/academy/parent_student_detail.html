@@ -1,0 +1,144 @@
+{% extends base_template %}
+{% load academy_tags %}
+{% block title %}{{ student.user.get_full_name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a href="{% url 'parent_dashboard' %}" class="text-decoration-none small" style="color:var(--primary);">
+            <i class="bi bi-arrow-left me-1"></i>Farzandlarim
+        </a>
+        <h4 class="fw-bold mt-2 mb-0" style="color:#1a1a2e;letter-spacing:-0.3px;">
+            <i class="bi bi-person-circle me-2" style="color:var(--primary);"></i>{{ student.user.get_full_name|default:student.user.username }}
+        </h4>
+        <small style="color:#a0a0b8;">
+            <i class="bi bi-person-badge me-1"></i>{{ student.student_id }}
+            {% if student.course %} · <i class="bi bi-mortarboard me-1"></i>{{ student.course }}-kurs{% endif %}
+        </small>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="main-card mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-book me-2" style="color:var(--primary);"></i>Fanlar va Baholar</h5>
+            {% if enrollments %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Fan</th>
+                                <th class="text-center">Baho</th>
+                                <th class="text-center">Davomat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for en in enrollments %}
+                                <tr>
+                                    <td>{{ en.subject.name }}</td>
+                                    <td class="text-center">
+                                        {% with grade=grade_map|dict_get:en.subject_id %}
+                                            {% if grade %}
+                                                <span class="badge bg-primary rounded-pill fs-6 px-3 py-2">{{ grade }}</span>
+                                            {% else %}
+                                                <span class="text-muted">—</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% with att=att_map|dict_get:en.subject_id %}
+                                            {% if att %}
+                                                <div class="progress" style="height:8px;max-width:120px;margin:0 auto;">
+                                                    <div class="progress-bar bg-success" role="progressbar" style="width:{{ att }}%;"></div>
+                                                </div>
+                                                <small class="d-block mt-1">{{ att }}%</small>
+                                            {% else %}
+                                                <span class="text-muted">—</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted text-center py-3 mb-0">Fanlar mavjud emas</p>
+            {% endif %}
+        </div>
+
+        <div class="main-card">
+            <h5 class="fw-bold mb-3"><i class="bi bi-calendar3 me-2" style="color:var(--secondary);"></i>Bugungi Darslar</h5>
+            {% if timetable %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Fan</th>
+                                <th>O'qituvchi</th>
+                                <th>Vaqt</th>
+                                <th>Xona</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in timetable %}
+                                <tr>
+                                    <td>{{ t.subject.name }}</td>
+                                    <td>{{ t.teacher.get_full_name|default:t.teacher.username }}</td>
+                                    <td>{{ t.start_time|time:"H:i" }} - {{ t.end_time|time:"H:i" }}</td>
+                                    <td>{{ t.classroom.number|default:"—" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted text-center py-3 mb-0">Bugun darslar yo'q</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="main-card mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart me-2" style="color:var(--accent);"></i>Umumiy Statistika</h5>
+            <div class="d-flex justify-content-around text-center py-2">
+                <div>
+                    <div class="fw-bold fs-4" style="color:var(--primary);">{{ grade_map|length }}</div>
+                    <small style="color:#a0a0b8;">Fanlar</small>
+                </div>
+                <div>
+                    <div class="fw-bold fs-4" style="color:var(--secondary);">{{ student.grade_average }}</div>
+                    <small style="color:#a0a0b8;">O'rtacha</small>
+                </div>
+                <div>
+                    <div class="fw-bold fs-4" style="color:var(--accent);">{{ student.attendance_stats.percent }}%</div>
+                    <small style="color:#a0a0b8;">Davomat</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-card mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-credit-card me-2" style="color:#f39c12;"></i>Oxirgi To'lovlar</h5>
+            {% if payments %}
+                <ul class="list-unstyled mb-0">
+                    {% for p in payments %}
+                        <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div>
+                                <small class="d-block fw-semibold">{{ p.description|truncatechars:25 }}</small>
+                                <small style="color:#a0a0b8;">{{ p.created_at|date:"d.m.Y" }}</small>
+                            </div>
+                            <div class="text-end">
+                                <small class="fw-bold">{{ p.amount }} so'm</small>
+                                <span class="badge {% if p.status == 'paid' %}bg-success{% elif p.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %} d-block mt-1">
+                                    {{ p.get_status_display }}
+                                </span>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted text-center py-3 mb-0">To'lovlar mavjud emas</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

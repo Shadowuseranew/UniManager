@@ -213,11 +213,11 @@ class Student(models.Model):
         ).count()
 
     def subject_grades_map(self):
-        ids = self.enrollments.values_list('subject_id', flat=True)
+        ids = Enrollment.objects.filter(student=self.user).values_list('subject_id', flat=True)
         return {g.subject_id: g.score for g in Grade.objects.filter(student=self.user, subject_id__in=ids)}
 
     def subject_attendance_map(self):
-        ids = self.enrollments.values_list('subject_id', flat=True)
+        ids = Enrollment.objects.filter(student=self.user).values_list('subject_id', flat=True)
         att_map = {}
         qs = Attendance.objects.filter(student=self.user, timetable__subject_id__in=ids).values(
             'timetable__subject_id'

@@ -19,14 +19,11 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    {% if new_password %}
                     <div class="alert alert-success border-0 shadow-sm" role="alert">
                         <i class="bi bi-key-fill me-2"></i>
                         <strong>Login:</strong> {{ user_obj.username }} &nbsp;|&nbsp;
-                        <strong>Parol:</strong> <code class="bg-white px-2 py-1 rounded">{{ new_password }}</code>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <strong>Parol:</strong> <code class="bg-white px-2 py-1 rounded">{{ user_obj.login_password }}</code>
                     </div>
-                    {% endif %}
                     <div class="row mb-4 align-items-center">
                         <div class="col-sm-3 text-center">
                             <div class="display-1 text-secondary opacity-25">

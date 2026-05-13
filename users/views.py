@@ -25,6 +25,7 @@ def _create_user_with_password(form, role):
     user = form.save(commit=False)
     user.role = role
     user.set_password(raw_password)
+    user.login_password = raw_password
     user.save()
     form.save_m2m()
     return user, raw_password
@@ -129,10 +130,13 @@ def user_edit(request, uuid):
     if request.method == "POST":
         form = UserCreationForm(request.POST, instance=user_obj)
         if form.is_valid():
-            # 1. Asosiy User ma'lumotlarini saqlaymiz
-            user = form.save()
+            user = form.save(commit=False)
+            raw_password = form.cleaned_data.get('password')
+            if raw_password:
+                user.set_password(raw_password)
+                user.login_password = raw_password
+            user.save()
             
-            # 2. Agar foydalanuvchi roli 'student' bo'lsa, profilni yangilaymiz
             if user.role == 'student':
                 if not student_profile:
                     student_profile = Student.objects.create(user=user)
@@ -163,8 +167,7 @@ def user_edit(request, uuid):
 def user_detail(request, uuid):
     """Foydalanuvchi haqida batafsil ma'lumot sahifasi"""
     user_obj = get_object_or_404(User.objects.prefetch_related('student_profile__groups'), uuid=uuid)
-    new_password = request.session.pop(f'new_pwd_{user_obj.id}', None)
-    return render(request, 'users/user_detail.html', {'user_obj': user_obj, 'new_password': new_password})
+    return render(request, 'users/user_detail.html', {'user_obj': user_obj})
 
 @login_required
 @admin_only

@@ -3,15 +3,7 @@
 {% block sidebar_menu %}
 <p class="menu-label text-uppercase fw-bold mb-2 ps-3 mt-3">Asosiy</p>
 <ul class="nav flex-column">
-    <li class="nav-item">
-        <a href="{% url 'dashboard' %}" class="nav-link mb-1 {% if request.path == '/' %}active{% endif %}">
-            <i class="bi bi-speedometer2"></i> Dashboard
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="{% url 'parent_dashboard' %}" class="nav-link mb-1 {% if 'parent' in request.path %}active{% endif %}">
-            <i class="bi bi-graph-up-arrow"></i> Farzandlarim
-        </a>
-    </li>
+    {% include 'includes/sidebar_link.html' with url_name='dashboard' icon='bi-speedometer2' label='Dashboard' active=request.path == '/' %}
+    {% include 'includes/sidebar_link.html' with url_name='parent_dashboard' icon='bi-graph-up-arrow' label='Farzandlarim' active='parent' in request.path %}
 </ul>
 {% endblock %}

@@ -3,54 +3,18 @@
 {% block sidebar_menu %}
 <p class="menu-label text-uppercase fw-bold mb-2 ps-3 mt-3">Asosiy</p>
 <ul class="nav flex-column">
-    <li class="nav-item">
-        <a href="{% url 'dashboard' %}" class="nav-link mb-1 {% if request.path == '/' %}active{% endif %}">
-            <i class="bi bi-speedometer2"></i> Dashboard
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="{% url 'subject_list' %}" class="nav-link mb-1 {% if 'subject' in request.path %}active{% endif %}">
-            <i class="bi bi-book"></i> Fanlar
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="{% url 'timetable_view' %}" class="nav-link mb-1 {% if 'timetable' in request.path %}active{% endif %}">
-            <i class="bi bi-calendar3"></i> Dars Jadvali
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="{% url 'group_list' %}" class="nav-link mb-1 {% if 'group' in request.path %}active{% endif %}">
-            <i class="bi bi-people"></i> Guruhlar
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="{% url 'classroom_list' %}" class="nav-link mb-1 {% if 'classroom' in request.path %}active{% endif %}">
-            <i class="bi bi-door-open"></i> O'quv Xonalari
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="{% url 'exam_list' %}" class="nav-link mb-1 {% if 'exam' in request.path %}active{% endif %}">
-            <i class="bi bi-pencil-square"></i> Imtihonlar
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="{% url 'material_list' %}" class="nav-link mb-1 {% if 'material' in request.path %}active{% endif %}">
-            <i class="bi bi-folder"></i> Materiallar
-        </a>
-    </li>
+    {% include 'includes/sidebar_link.html' with url_name='dashboard' icon='bi-speedometer2' label='Dashboard' active=request.path == '/' %}
+    {% include 'includes/sidebar_link.html' with url_name='subject_list' icon='bi-book' label='Fanlar' active='subject' in request.path %}
+    {% include 'includes/sidebar_link.html' with url_name='timetable_view' icon='bi-calendar3' label='Dars Jadvali' active='timetable' in request.path %}
+    {% include 'includes/sidebar_link.html' with url_name='group_list' icon='bi-people' label='Guruhlar' active='group' in request.path %}
+    {% include 'includes/sidebar_link.html' with url_name='classroom_list' icon='bi-door-open' label="O'quv Xonalari" active='classroom' in request.path %}
+    {% include 'includes/sidebar_link.html' with url_name='exam_list' icon='bi-pencil-square' label='Imtihonlar' active='exam' in request.path %}
+    {% include 'includes/sidebar_link.html' with url_name='material_list' icon='bi-folder' label='Materiallar' active='material' in request.path %}
 </ul>
 
 <p class="menu-label text-uppercase fw-bold mb-2 ps-3 mt-4">Rolga Mos</p>
 <ul class="nav flex-column">
-    <li class="nav-item">
-        <a href="{% url 'teacher_dashboard' %}" class="nav-link mb-1 {% if 'teacher' in request.path %}active{% endif %}">
-            <i class="bi bi-journal-check"></i> Baholash Jurnali
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="{% url 'notification_list' %}" class="nav-link mb-1 {% if 'notification' in request.path %}active{% endif %}">
-            <i class="bi bi-bell"></i> Xabarlar
-        </a>
-    </li>
+    {% include 'includes/sidebar_link.html' with url_name='teacher_dashboard' icon='bi-journal-check' label='Baholash Jurnali' active='teacher' in request.path %}
+    {% include 'includes/sidebar_link.html' with url_name='notification_list' icon='bi-bell' label='Xabarlar' active='notification' in request.path %}
 </ul>
 {% endblock %}

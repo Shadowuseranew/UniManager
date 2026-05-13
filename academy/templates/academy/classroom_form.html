@@ -22,10 +22,7 @@
                             </div>
                         {% endfor %}
 
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-success">Saqlash</button>
-                            <a href="{% url 'classroom_list' %}" class="btn btn-outline-secondary">Bekor qilish</a>
-                        </div>
+                        {% include 'includes/form_buttons.html' with cancel_url='classroom_list' full_width=True %}
                     </form>
                 </div>
             </div>

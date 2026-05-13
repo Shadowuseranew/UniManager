@@ -25,10 +25,7 @@
                         </div>
                     {% endfor %}
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                        <a href="{% url 'subject_list' %}" class="btn btn-light me-md-2">Bekor qilish</a>
-                        <button type="submit" class="btn btn-primary px-4">Saqlash</button>
-                    </div>
+                    {% include 'includes/form_buttons.html' with cancel_url='subject_list' button_class='btn-primary' %}
                 </form>
             </div>
         </div>

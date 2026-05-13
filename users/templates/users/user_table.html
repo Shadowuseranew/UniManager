@@ -13,43 +13,54 @@
             <tr class="clickable-row" data-href="{% url 'user_detail' user.uuid %}">
                 <td class="ps-4">
                     <div class="d-flex align-items-center">
-                        <div class="avatar-sm me-3 bg-light rounded-circle text-center" style="width: 40px; height: 40px; line-height: 40px; overflow:hidden;">
+                        <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;margin-right:12px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;">
                             {% if user.avatar %}
-                                <img src="{{ user.avatar.url }}" alt="" class="rounded-circle" style="width:40px;height:40px;object-fit:cover;">
+                                <img src="{{ user.avatar.url }}" alt="" style="width:40px;height:40px;object-fit:cover;">
                             {% else %}
                                 <i class="bi bi-person text-secondary"></i>
                             {% endif %}
                         </div>
                         <div>
-                            <div class="fw-bold text-dark">{{ user.get_full_name|default:user.username }}</div>
+                            <div class="fw-bold" style="color:var(--sidebar-bg);">{{ user.get_full_name|default:user.username }}</div>
                             <div class="small text-muted">@{{ user.username }}</div>
                         </div>
                     </div>
                 </td>
                 <td>
                     {% if type == 'student' %}
-                        <div class="small fw-semibold text-primary">{{ user.student_profile.student_id }}</div>
+                        <div class="small fw-semibold" style="color:var(--primary);">{{ user.student_profile.student_id }}</div>
                         <div class="small text-muted">{{ user.phone_number|default:"-" }}</div>
                     {% else %}
-                        <span class="small">{{ user.email|default:"-" }}</span>
+                        <span class="small text-muted">{{ user.email|default:"-" }}</span>
                     {% endif %}
                 </td>
                 <td>
                     {% if type == 'student' %}
+                        <div class="d-flex flex-wrap gap-1">
                         {% for g in user.student_profile.groups.all %}
-                            <span class="badge bg-light text-dark border small">{{ g.name }}</span>
-                        {% empty %} - {% endfor %}
+                            <span class="badge" style="background:rgba(108,92,231,0.1);color:var(--primary);font-weight:500;">{{ g.name }}</span>
+                        {% empty %} <span class="text-muted small">-</span> {% endfor %}
+                        </div>
                     {% else %}
-                        <span class="badge {% if type == 'admin' %}bg-danger-subtle text-danger{% else %}bg-warning-subtle text-warning{% endif %}">
+                        <span class="badge {% if type == 'admin' %}" style="background:rgba(255,107,107,0.12);color:#c0392b;{% elif type == 'teacher' %}" style="background:rgba(253,203,110,0.2);color:#b7950b;{% elif type == 'parent' %}" style="background:rgba(0,184,148,0.12);color:#008060;{% endif %}">
                             {{ user.get_role_display }}
                         </span>
                     {% endif %}
                 </td>
                 <td class="text-end pe-4">
                     <div class="btn-group">
-                        <a href="{% url 'user_detail' user.uuid %}" class="btn btn-sm btn-outline-info" title="Ko'rish"><i class="bi bi-eye"></i></a>
-                        <a href="{% url 'user_edit' user.uuid %}" class="btn btn-sm btn-outline-warning" title="Tahrirlash"><i class="bi bi-pencil"></i></a>
-                        <a href="{% url 'user_delete' user.uuid %}" class="btn btn-sm btn-outline-danger" title="O'chirish"><i class="bi bi-trash"></i></a>
+                        <a href="{% url 'user_detail' user.uuid %}" class="btn btn-sm btn-outline-info" title="Ko'rish" data-bs-toggle="tooltip"><i class="bi bi-eye"></i></a>
+                        <a href="{% url 'user_edit' user.uuid %}" class="btn btn-sm btn-outline-warning" title="Tahrirlash" data-bs-toggle="tooltip"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'user_delete' user.uuid %}" class="btn btn-sm btn-outline-danger" title="O'chirish" data-bs-toggle="tooltip"><i class="bi bi-trash"></i></a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center py-5">
+                    <div class="empty-state">
+                        <i class="bi bi-people"></i>
+                        <h5 class="text-muted">Foydalanuvchilar topilmadi</h5>
                     </div>
                 </td>
             </tr>

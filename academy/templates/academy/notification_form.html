@@ -1,74 +1,105 @@
 {% extends base_template %}
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow border-0">
-            <div class="card-header bg-primary text-white"><h5 class="mb-0">Xabar jo'natish</h5></div>
-            <div class="card-body p-4">
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Qabul qiluvchi</label>
-                        <div class="d-flex gap-2 flex-wrap">
-                            <button type="button" class="btn btn-outline-primary btn-sm recipient-btn active" data-value="all_students" onclick="selectRecipient('all_students')">Barcha talabalar</button>
-                            <button type="button" class="btn btn-outline-primary btn-sm recipient-btn" data-value="all_teachers" onclick="selectRecipient('all_teachers')">Barcha o'qituvchilar</button>
-                            <button type="button" class="btn btn-outline-primary btn-sm recipient-btn" data-value="everyone" onclick="selectRecipient('everyone')">Hamma uchun</button>
-                            <button type="button" class="btn btn-outline-primary btn-sm recipient-btn" data-value="by_group" onclick="selectRecipient('by_group')">Guruh bo'yicha</button>
-                            <button type="button" class="btn btn-outline-primary btn-sm recipient-btn" data-value="single" onclick="selectRecipient('single')">Tanlab</button>
-                        </div>
-                        <input type="hidden" name="recipient_group" id="recipient_group" value="all_students">
-                    </div>
-                    <div class="mb-3" id="group_field" style="display:none;">
-                        <label class="form-label fw-bold">Guruhlarni tanlang</label>
-                        <div class="d-flex gap-2 flex-wrap">
-                            {% for g in groups %}
-                            <label class="btn btn-outline-secondary btn-sm group-chip" style="cursor:pointer;">
-                                <input type="checkbox" name="group_ids" value="{{ g.id }}" onchange="this.parentElement.classList.toggle('active')"> {{ g.name }}
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div class="mb-3" id="single_recipient_field" style="display:none;">
-                        <label class="form-label fw-bold">Qabul qiluvchilarni tanlang</label>
-                        <div class="mb-2 d-flex gap-2">
-                            <input type="text" id="userSearch" class="form-control" placeholder="Qidirish..." oninput="filterUsers()">
-                            <select id="roleFilter" class="form-select w-auto" onchange="filterUsers()">
-                                <option value="">Barcha rollar</option>
-                                <option value="admin">Admin</option>
-                                <option value="teacher">O'qituvchi</option>
-                                <option value="student">Talaba</option>
-                            </select>
-                        </div>
-                        <div class="d-flex gap-2 mb-2">
-                            <button type="button" class="btn btn-sm btn-outline-success" onclick="selectAllVisible()">Barchasini tanlash</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll()">Bekor qilish</button>
-                            <span id="selectedCount" class="btn btn-sm btn-light ms-auto">Tanlangan: 0</span>
-                        </div>
-                        <div style="max-height: 250px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; padding: 8px;">
-                            {% for u in all_users %}
-                            <label class="user-item d-flex align-items-center gap-2 py-1 px-2 rounded" data-role="{{ u.role }}" data-name="{{ u.get_full_name|default:u.username }} {{ u.username }}" style="cursor:pointer;user-select:none;">
-                                <input type="checkbox" name="recipients" value="{{ u.id }}" class="user-checkbox" onchange="updateCount()">
-                                <span>{{ u.get_full_name|default:u.username }}</span>
-                                <small class="text-muted ms-auto">{{ u.get_role_display }}</small>
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Sarlavha</label>
-                        <input type="text" name="title" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Xabar</label>
-                        <textarea name="message" class="form-control" rows="4" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Jo'natish</button>
-                    <a href="{% url 'notification_list' %}" class="btn btn-outline-secondary w-100 mt-2">Bekor qilish</a>
-                </form>
+    <div class="col-md-7">
+        <div class="main-card">
+            <div class="d-flex align-items-center mb-4">
+                <div style="width:4px;height:24px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:2px;margin-right:12px;"></div>
+                <h4 class="fw-bold mb-0" style="color:var(--sidebar-bg);">Xabar jo'natish</h4>
             </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Qabul qiluvchi</label>
+                    <div class="d-flex gap-2 flex-wrap mb-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm recipient-btn active" data-value="all_students" onclick="selectRecipient('all_students')">Barcha talabalar</button>
+                        {% if not is_teacher %}
+                        <button type="button" class="btn btn-outline-primary btn-sm recipient-btn" data-value="all_teachers" onclick="selectRecipient('all_teachers')">Barcha o'qituvchilar</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm recipient-btn" data-value="everyone" onclick="selectRecipient('everyone')">Hamma uchun</button>
+                        {% endif %}
+                        <button type="button" class="btn btn-outline-primary btn-sm recipient-btn" data-value="by_group" onclick="selectRecipient('by_group')">Guruh bo'yicha</button>
+                        {% if not is_teacher %}
+                        <button type="button" class="btn btn-outline-primary btn-sm recipient-btn" data-value="single" onclick="selectRecipient('single')">Tanlab</button>
+                        {% endif %}
+                    </div>
+                    <input type="hidden" name="recipient_group" id="recipient_group" value="all_students">
+                </div>
+
+                <div class="mb-4" id="group_field" style="display:none;">
+                    <label class="form-label fw-bold">Guruhlarni tanlang</label>
+                    <div class="d-flex gap-2 flex-wrap">
+                        {% for g in groups %}
+                        <label class="btn btn-outline-secondary btn-sm group-chip px-3" style="cursor:pointer;border-radius:8px;transition:all 0.2s;">
+                            <input type="checkbox" name="group_ids" value="{{ g.id }}" onchange="this.parentElement.classList.toggle('active');this.parentElement.style.borderColor=this.checked?'var(--primary)':''" class="d-none"> {{ g.name }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mb-4" id="single_recipient_field" style="display:none;">
+                    <label class="form-label fw-bold">Qabul qiluvchilarni tanlang</label>
+                    <div class="mb-2 d-flex gap-2">
+                        <input type="text" id="userSearch" class="form-control" placeholder="Qidirish..." oninput="filterUsers()">
+                        <select id="roleFilter" class="form-select w-auto" onchange="filterUsers()">
+                            <option value="">Barcha rollar</option>
+                            <option value="admin">Admin</option>
+                            <option value="teacher">O'qituvchi</option>
+                            <option value="student">Talaba</option>
+                        </select>
+                    </div>
+                    <div class="d-flex gap-2 mb-2">
+                        <button type="button" class="btn btn-sm btn-outline-success" onclick="selectAllVisible()">Barchasini tanlash</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll()">Bekor qilish</button>
+                        <span id="selectedCount" class="btn btn-sm btn-light ms-auto">Tanlangan: 0</span>
+                    </div>
+                    <div style="max-height:250px;overflow-y:auto;border:1.5px solid #e9ecef;border-radius:var(--radius-sm);padding:8px;">
+                        {% for u in all_users %}
+                        <label class="user-item d-flex align-items-center gap-2 py-2 px-3 rounded" data-role="{{ u.role }}" data-name="{{ u.get_full_name|default:u.username }} {{ u.username }}" style="cursor:pointer;user-select:none;transition:background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background=''">
+                            <input type="checkbox" name="recipients" value="{{ u.id }}" class="user-checkbox" onchange="updateCount()">
+                            <span class="fw-medium">{{ u.get_full_name|default:u.username }}</span>
+                            <small class="text-muted ms-auto">{{ u.get_role_display }}</small>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Sarlavha</label>
+                    <input type="text" name="title" class="form-control" placeholder="Xabar sarlavhasi..." required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Xabar</label>
+                    <textarea name="message" class="form-control" rows="5" placeholder="Xabar matnini kiriting..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-3">
+                    <i class="bi bi-send-fill me-2"></i> Jo'natish
+                </button>
+                <a href="{% url 'notification_list' %}" class="btn btn-outline-secondary w-100 mt-2">Bekor qilish</a>
+            </form>
         </div>
     </div>
 </div>
+
+<style>
+    .recipient-btn.active {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+        color: white !important;
+        border-color: transparent !important;
+        box-shadow: 0 4px 15px rgba(108,92,231,0.3);
+    }
+    .group-chip.active {
+        background: var(--primary) !important;
+        color: white !important;
+        border-color: var(--primary) !important;
+    }
+    .user-item:hover {
+        background: rgba(108,92,231,0.04);
+    }
+</style>
+
 <script>
 function selectRecipient(value) {
     document.getElementById('recipient_group').value = value;

@@ -4,7 +4,7 @@ from .models import Subject, Student, Enrollment, Grade, Attendance, Timetable, 
 from .forms import SubjectForm, TimetableForm, ClassroomForm, GroupForm, PaymentForm, ExamForm, StudyMaterialForm, NotificationForm, SemesterForm
 from .chat_assistant import Assistant
 from .audit_logger import log_action
-from users.decorators import admin_only
+from users.decorators import admin_only, teacher_only, student_only, admin_or_teacher
 from users.forms import StudentAddForm, TeacherAddForm, AdminAddForm
 from django.utils import timezone
 from datetime import time, timedelta
@@ -66,7 +66,6 @@ def dashboard(request):
             'att_percent': profile.attendance_stats['percent'] if profile else 0,
             'today_lessons': profile.today_lessons_count if profile else 0,
             'subject_grades': [],
-        })
         })
 
     return render(request, 'academy/dashboard.html', ctx)
@@ -421,11 +420,8 @@ def timetable_delete(request, pk):
     return redirect('timetable_view')
 
 @login_required
+@teacher_only
 def teacher_dashboard(request):
-    if request.user.role != 'teacher':
-        return redirect('dashboard')
-    
-    # O'qituvchi dars beradigan fanlar
     my_lessons = Timetable.objects.filter(teacher=request.user)
     return render(request, 'academy/teacher_dashboard.html', {'lessons': my_lessons})
 
@@ -495,9 +491,8 @@ def journal_view(request, lesson_id):
     })
 
 @login_required
+@student_only
 def student_dashboard(request):
-    if request.user.role != 'student':
-        return redirect('dashboard')
     
     # Talaba yozilgan fanlar
     enrollments = Enrollment.objects.filter(student=request.user).select_related('subject')

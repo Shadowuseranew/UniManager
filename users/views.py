@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
+from django.urls import reverse
 from .models import User, TeacherProfile
 from .forms import UserCreationForm, AdminAddForm, TeacherAddForm, StudentAddForm, ParentAddForm
 from .decorators import admin_only
@@ -19,7 +20,7 @@ class RoleBasedLoginView(LoginView):
             'student': 'student_dashboard',
             'parent': 'parent_dashboard',
         }
-        return role_urls.get(self.request.user.role, 'dashboard')
+        return reverse(role_urls.get(self.request.user.role, 'dashboard'))
 
 
 @login_required

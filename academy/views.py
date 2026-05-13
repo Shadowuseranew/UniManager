@@ -735,7 +735,9 @@ def material_delete(request, pk):
 def notification_list(request):
     if request.user.role == 'student':
         return redirect('dashboard')
-    notifications = Notification.objects.filter(recipient=request.user)
+    received = Notification.objects.filter(recipient=request.user)
+    sent = Notification.objects.filter(sender=request.user).exclude(recipient=request.user)
+    notifications = (received | sent).order_by('-created_at')
     return render(request, 'academy/notification_list.html', {'notifications': notifications})
 
 @login_required

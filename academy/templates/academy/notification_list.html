@@ -7,15 +7,30 @@
 <div class="card shadow-sm border-0">
     <ul class="list-group list-group-flush">
         {% for n in notifications %}
-        <li class="list-group-item d-flex justify-content-between align-items-center {% if not n.is_read %}fw-bold bg-light{% endif %}">
+        <li class="list-group-item d-flex justify-content-between align-items-center {% if not n.is_read and n.recipient == user %}fw-bold bg-light{% endif %}">
             <div>
-                <small class="text-muted">{{ n.sender.get_full_name }} &middot; {{ n.created_at|date:"d.m.Y H:i" }}</small>
+                <small class="text-muted">
+                    {% if n.sender == user %}
+                        <span class="text-success"><i class="bi bi-arrow-up-right"></i> Siz</span>
+                    {% else %}
+                        {{ n.sender.get_full_name|default:n.sender.username }}
+                    {% endif %}
+                    &rarr;
+                    {% if n.recipient == user %}
+                        <span class="text-primary"><i class="bi bi-arrow-down-left"></i> Sizga</span>
+                    {% else %}
+                        {{ n.recipient.get_full_name|default:n.recipient.username }}
+                    {% endif %}
+                    &middot; {{ n.created_at|date:"d.m.Y H:i" }}
+                </small>
                 <div class="mt-1">{{ n.title }}</div>
                 <p class="mb-0 text-muted small">{{ n.message|truncatewords:20 }}</p>
             </div>
-            {% if not n.is_read %}
-                <a href="{% url 'notification_read' n.pk %}" class="btn btn-sm btn-outline-primary">O'qildi</a>
-            {% endif %}
+            <div class="d-flex gap-1">
+                {% if not n.is_read and n.recipient == user %}
+                    <a href="{% url 'notification_read' n.pk %}" class="btn btn-sm btn-outline-primary">O'qildi</a>
+                {% endif %}
+            </div>
         </li>
         {% empty %}
         <li class="list-group-item text-center py-4">Xabarlar yo'q.</li>

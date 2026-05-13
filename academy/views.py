@@ -422,14 +422,14 @@ def timetable_delete(request, pk):
 @login_required
 @teacher_only
 def teacher_dashboard(request):
-    my_lessons = Timetable.objects.filter(teacher=request.user)
+    my_lessons = Timetable.objects.filter(teacher=request.user).select_related('subject', 'group', 'classroom')
     return render(request, 'academy/teacher_dashboard.html', {'lessons': my_lessons})
 
 @login_required
 def grade_students(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
     # Ushbu fanga yozilgan talabalar
-    enrollments = Enrollment.objects.filter(subject=subject)
+    enrollments = Enrollment.objects.filter(subject=subject).select_related('student')
     
     if request.method == "POST":
         for enrollment in enrollments:
@@ -452,7 +452,7 @@ def grade_students(request, subject_id):
 def journal_view(request, lesson_id):
     lesson = get_object_or_404(Timetable, pk=lesson_id)
     # Ushbu fanga yozilgan talabalar
-    enrollments = Enrollment.objects.filter(subject=lesson.subject)
+    enrollments = Enrollment.objects.filter(subject=lesson.subject).select_related('student')
     
     if request.method == "POST":
         for en in enrollments:
@@ -496,31 +496,28 @@ def student_dashboard(request):
     
     # Talaba yozilgan fanlar
     enrollments = Enrollment.objects.filter(student=request.user).select_related('subject')
-    
-    # Har bir fan bo'yicha baho va davomat tahlili
+    subject_ids = enrollments.values_list('subject_id', flat=True)
+
+    grades_map = {}
+    for g in Grade.objects.filter(student=request.user, subject_id__in=subject_ids):
+        grades_map[g.subject_id] = g.score
+
+    att_map = {}
+    att_qs = Attendance.objects.filter(student=request.user, timetable__subject_id__in=subject_ids).values('timetable__subject_id').annotate(
+        total=Count('id'), present=Count('id', filter=Q(status='present'))
+    )
+    for a in att_qs:
+        sid = a['timetable__subject_id']
+        tot = a['total']
+        pct = round((a['present'] / tot * 100) if tot else 0, 1)
+        att_map[sid] = pct
+
     subject_data = []
     for en in enrollments:
-        # Baho
-        grade = Grade.objects.filter(student=request.user, subject=en.subject).first()
-        
-        # Davomat (necha marta dars bo'lgan va necha marta qatnashgan)
-        attendance_stats = Attendance.objects.filter(
-            student=request.user, 
-            timetable__subject=en.subject
-        ).aggregate(
-            total=Count('id'),
-            present=Count('id', filter=Q(status='present'))
-        )
-        
-        # Davomat foizini hisoblash
-        att_percent = 0
-        if attendance_stats['total'] > 0:
-            att_percent = (attendance_stats['present'] / attendance_stats['total']) * 100
-            
         subject_data.append({
             'subject': en.subject.name,
-            'grade': grade.score if grade else 0,
-            'attendance_percent': round(att_percent, 1)
+            'grade': grades_map.get(en.subject_id, 0),
+            'attendance_percent': att_map.get(en.subject_id, 0),
         })
 
     return render(request, 'academy/student_dashboard.html', {
@@ -869,7 +866,11 @@ def calendar_view(request):
 @login_required
 def export_grades(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
-    enrollments = Enrollment.objects.filter(subject=subject).select_related('student')
+    enrollments = Enrollment.objects.filter(subject=subject).select_related('student', 'student__student_profile')
+
+    grade_map = {}
+    for g in Grade.objects.filter(subject=subject, student_id__in=enrollments.values_list('student_id', flat=True)):
+        grade_map[g.student_id] = g
 
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -877,10 +878,10 @@ def export_grades(request, subject_id):
     ws.append(['Talaba', 'Talaba ID', 'Baho'])
 
     for en in enrollments:
-        grade = Grade.objects.filter(student=en.student, subject=subject).first()
+        grade = grade_map.get(en.student_id)
         ws.append([
             en.student.get_full_name(),
-            getattr(en.student, 'student_profile', None).student_id if hasattr(en.student, 'student_profile') else '',
+            en.student.student_profile.student_id if hasattr(en.student, 'student_profile') else '',
             grade.score if grade else ''
         ])
 
@@ -932,7 +933,7 @@ def timetable_list(request):
 def fill_journal(request, timetable_id):
     timetable = get_object_or_404(Timetable, id=timetable_id)
     # Ushbu guruhdagi barcha talabalarni olamiz
-    students = User.objects.filter(student_profile__groups=timetable.group)
+    students = User.objects.filter(student_profile__groups=timetable.group).select_related('student_profile')
 
     if request.method == "POST":
         # 1. Dars kunini yaratamiz

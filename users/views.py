@@ -20,10 +20,26 @@ def _generate_password(length=8):
     return ''.join(secrets.choice(chars) for _ in range(length))
 
 
+def _generate_username(first_name, last_name):
+    base = f"{first_name}.{last_name}".lower()
+    username = ''.join(c for c in base if c.isalnum() or c == '.')
+    username = username.strip('.')
+    if not username:
+        username = 'user'
+    if not User.objects.filter(username=username).exists():
+        return username
+    for i in range(1, 9999):
+        candidate = f"{username}{i}"
+        if not User.objects.filter(username=candidate).exists():
+            return candidate
+    return f"{username}{secrets.token_hex(4)}"
+
+
 def _create_user_with_password(form, role):
     raw_password = form.cleaned_data.get('password') or _generate_password()
     user = form.save(commit=False)
     user.role = role
+    user.username = _generate_username(user.first_name or '', user.last_name or '')
     user.set_password(raw_password)
     user.login_password = raw_password
     user.save()

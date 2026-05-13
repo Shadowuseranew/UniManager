@@ -12,14 +12,18 @@ class BaseUserForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'phone_number', 'password']
+        fields = ['first_name', 'last_name', 'email', 'phone_number', 'password']
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
 
     def save(self, commit=True):
         return super().save(commit=commit)
@@ -73,7 +77,7 @@ class ParentAddForm(BaseUserForm):
         fields = BaseUserForm.Meta.fields
 
 class UserCreationForm(StudentAddForm):
-    """Eski viewlar bilan moslikni ta'minlash uchun (vaqtincha)"""
+    """Tahrirlash uchun forma"""
     role = forms.ChoiceField(choices=User.USER_ROLES, widget=forms.Select(attrs={'class': 'form-control'}))
     class Meta(StudentAddForm.Meta):
-        fields = StudentAddForm.Meta.fields + ['role']
+        fields = StudentAddForm.Meta.fields + ['username', 'role']

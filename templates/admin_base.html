@@ -1,0 +1,69 @@
+{% extends 'dashboard_base.html' %}
+
+{% block sidebar_menu %}
+<p class="menu-label text-uppercase fw-bold mb-2 ps-3 mt-3">Asosiy</p>
+<ul class="nav flex-column">
+    <li class="nav-item">
+        <a href="{% url 'dashboard' %}" class="nav-link mb-1 {% if request.path == '/' %}active{% endif %}">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'subject_list' %}" class="nav-link mb-1 {% if 'subject' in request.path %}active{% endif %}">
+            <i class="bi bi-book"></i> Fanlar
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link mb-1 collapsed" data-bs-toggle="collapse" href="#jadvalMenu" role="button" aria-expanded="false">
+            <i class="bi bi-calendar3"></i> Jadval & Semestr <i class="bi bi-chevron-down ms-auto small"></i>
+        </a>
+        <div class="collapse" id="jadvalMenu">
+            <ul class="nav flex-column ms-3">
+                <li class="nav-item"><a href="{% url 'timetable_view' %}" class="nav-link mb-1 small {% if 'timetable' in request.path and 'semester' not in request.path %}active{% endif %}"><i class="bi bi-calendar-day"></i> Dars Jadvali</a></li>
+                <li class="nav-item"><a href="{% url 'timetable_semester' %}" class="nav-link mb-1 small {% if 'timetable/semester' in request.path %}active{% endif %}"><i class="bi bi-magic"></i> Generatsiya</a></li>
+                <li class="nav-item"><a href="{% url 'semester_list' %}" class="nav-link mb-1 small {% if 'semesters' in request.path %}active{% endif %}"><i class="bi bi-calendar2-month"></i> Semestrlar</a></li>
+                <li class="nav-item"><a href="{% url 'calendar_view' %}" class="nav-link mb-1 small {% if 'calendar' in request.path %}active{% endif %}"><i class="bi bi-calendar-week"></i> Kalendar</a></li>
+            </ul>
+        </div>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'group_list' %}" class="nav-link mb-1 {% if 'group' in request.path %}active{% endif %}">
+            <i class="bi bi-people"></i> Guruhlar
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'classroom_list' %}" class="nav-link mb-1 {% if 'classroom' in request.path %}active{% endif %}">
+            <i class="bi bi-door-open"></i> O'quv Xonalari
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'exam_list' %}" class="nav-link mb-1 {% if 'exam' in request.path %}active{% endif %}">
+            <i class="bi bi-pencil-square"></i> Imtihonlar
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'payment_list' %}" class="nav-link mb-1 {% if 'payment' in request.path %}active{% endif %}">
+            <i class="bi bi-credit-card"></i> To'lovlar
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'material_list' %}" class="nav-link mb-1 {% if 'material' in request.path %}active{% endif %}">
+            <i class="bi bi-folder"></i> Materiallar
+        </a>
+    </li>
+</ul>
+
+<p class="menu-label text-uppercase fw-bold mb-2 ps-3 mt-4">Rolga Mos</p>
+<ul class="nav flex-column">
+    <li class="nav-item">
+        <a href="{% url 'user_list' %}" class="nav-link mb-1 {% if 'user' in request.path %}active{% endif %}">
+            <i class="bi bi-person-gear"></i> Foydalanuvchilar
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="{% url 'notification_send' %}" class="nav-link mb-1 {% if 'notification' in request.path %}active{% endif %}">
+            <i class="bi bi-bell"></i> Xabarlar
+        </a>
+    </li>
+</ul>
+{% endblock %}

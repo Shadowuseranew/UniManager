@@ -2,7 +2,7 @@ import re
 from datetime import date, timedelta
 from django.db.models import Avg, Count, Q, Sum
 from django.utils import timezone
-from .models import Grade, Attendance, Timetable, Exam, Payment, Group, Subject, Enrollment
+from .models import Grade, JournalGrade, Timetable, Exam, Payment, Group, Subject, Enrollment
 
 class Assistant:
     def __init__(self, user):
@@ -89,7 +89,7 @@ class Assistant:
         return "\n".join(lines)
 
     def _get_attendance(self):
-        stats = Attendance.objects.filter(
+        stats = JournalGrade.objects.filter(
             student=self.user
         ).aggregate(
             total=Count('id'),

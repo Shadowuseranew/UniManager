@@ -73,19 +73,23 @@
         <div class="tab-content" id="userTabsContent">
             
             <div class="tab-pane fade show active" id="students" role="tabpanel">
-                {% include 'users/user_table.html' with user_list=students type='student' %}
+                {% include 'users/user_table.html' with user_list=students_page.object_list type='student' %}
+                {% include 'includes/_pagination.html' with page_obj=students_page page_param='students_page' %}
             </div>
 
             <div class="tab-pane fade" id="teachers" role="tabpanel">
-                {% include 'users/user_table.html' with user_list=teachers type='teacher' %}
+                {% include 'users/user_table.html' with user_list=teachers_page.object_list type='teacher' %}
+                {% include 'includes/_pagination.html' with page_obj=teachers_page page_param='teachers_page' %}
             </div>
 
             <div class="tab-pane fade" id="admins" role="tabpanel">
-                {% include 'users/user_table.html' with user_list=admins type='admin' %}
+                {% include 'users/user_table.html' with user_list=admins_page.object_list type='admin' %}
+                {% include 'includes/_pagination.html' with page_obj=admins_page page_param='admins_page' %}
             </div>
 
             <div class="tab-pane fade" id="parents" role="tabpanel">
-                {% include 'users/user_table.html' with user_list=parents type='parent' %}
+                {% include 'users/user_table.html' with user_list=parents_page.object_list type='parent' %}
+                {% include 'includes/_pagination.html' with page_obj=parents_page page_param='parents_page' %}
             </div>
 
         </div>

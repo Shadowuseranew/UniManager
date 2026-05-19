@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Classroom, Group, Student, Subject, Timetable, LessonJournal, Attendance, Payment, StudyMaterial, Exam, Notification, Holiday, Semester, Faculty, AcademicYear
+from .models import Classroom, Group, Student, Subject, Timetable, LessonJournal, JournalGrade, Payment, StudyMaterial, Exam, Notification, Holiday, Semester, Faculty, AcademicYear
 
 @admin.register(Classroom)
 class ClassroomAdmin(admin.ModelAdmin):

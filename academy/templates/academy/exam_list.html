@@ -20,7 +20,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for e in exams %}
+                {% for e in page_obj %}
                 <tr>
                     <td>{{ e.subject.name }}</td>
                     <td>{{ e.group.name }}</td>
@@ -35,5 +35,6 @@
             </tbody>
         </table>
     </div>
+    {% include 'includes/_pagination.html' %}
 </div>
 {% endblock %}

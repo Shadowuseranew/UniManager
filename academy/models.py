@@ -4,6 +4,12 @@ from users.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
+ATTENDANCE_STATUS = (
+    ('present', 'Bor'),
+    ('absent', "Yo'q"),
+    ('late', 'Kechikdi'),
+)
+
 class Subject(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, db_index=True)
     name = models.CharField(max_length=200)
@@ -60,38 +66,6 @@ class Grade(models.Model):
     def subject_averages(queryset):
         return list(queryset.values('subject__name').annotate(avg=models.Avg('score')).order_by('-avg')[:10])
     
-class Attendance(models.Model):
-    ATTENDANCE_STATUS = (
-        ('present', 'Bor'),
-        ('absent', "Yo'q"),
-        ('late', 'Kechikdi'),
-    )
-    student = models.ForeignKey('users.User', on_delete=models.CASCADE, limit_choices_to={'role': 'student'})
-    timetable = models.ForeignKey('Timetable', on_delete=models.CASCADE, null=True)
-    date = models.DateField(default=timezone.now)
-    status = models.CharField(max_length=10, choices=ATTENDANCE_STATUS, default='present')
-
-    class Meta:
-        unique_together = ('student', 'timetable', 'date')
-
-    def __str__(self):
-        subject_name = self.timetable.subject.name if self.timetable else "Noma'lum dars"
-        return f"{self.student.username} - {subject_name} ({self.date})"
-
-    @staticmethod
-    def stats_for(queryset, date=None):
-        qs = queryset
-        if date:
-            qs = qs.filter(date=date)
-        stats = qs.aggregate(
-            total=models.Count('id'),
-            present=models.Count('id', filter=models.Q(status='present')),
-            absent=models.Count('id', filter=models.Q(status='absent')),
-            late=models.Count('id', filter=models.Q(status='late')),
-        )
-        percent = round((stats['present'] / stats['total'] * 100) if stats['total'] else 0, 1)
-        return {**stats, 'percent': percent}
-
 DAYS_OF_WEEK = [
     (1, 'Dushanba'),
     (2, 'Seshanba'),
@@ -202,7 +176,7 @@ class Student(models.Model):
 
     @property
     def attendance_stats(self):
-        return Attendance.stats_for(Attendance.objects.filter(student=self.user))
+        return JournalGrade.stats_for(JournalGrade.objects.filter(student=self.user))
 
     @property
     def today_lessons_count(self):
@@ -219,11 +193,13 @@ class Student(models.Model):
     def subject_attendance_map(self):
         ids = Enrollment.objects.filter(student=self.user).values_list('subject_id', flat=True)
         att_map = {}
-        qs = Attendance.objects.filter(student=self.user, timetable__subject_id__in=ids).values(
-            'timetable__subject_id'
-        ).annotate(total=models.Count('id'), present=models.Count('id', filter=models.Q(status='present')))
+        qs = JournalGrade.objects.filter(
+            student=self.user, lesson__timetable__subject_id__in=ids
+        ).values('lesson__timetable__subject_id').annotate(
+            total=models.Count('id'), present=models.Count('id', filter=models.Q(status='present'))
+        )
         for a in qs:
-            sid = a['timetable__subject_id']
+            sid = a['lesson__timetable__subject_id']
             tot = a['total']
             att_map[sid] = round((a['present'] / tot * 100) if tot else 0, 1)
         return att_map
@@ -254,7 +230,7 @@ class Student(models.Model):
 
 class LessonJournal(models.Model):
     timetable = models.ForeignKey(Timetable, on_delete=models.CASCADE)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField(default=timezone.now)
     topic = models.CharField(max_length=255, verbose_name="Dars mavzusi")
 
     def __str__(self):
@@ -263,12 +239,24 @@ class LessonJournal(models.Model):
 class JournalGrade(models.Model):
     lesson = models.ForeignKey(LessonJournal, on_delete=models.CASCADE, related_name='grades')
     student = models.ForeignKey('users.User', on_delete=models.CASCADE, limit_choices_to={'role': 'student'})
-    is_present = models.BooleanField(default=True, verbose_name="Qatnashdi")
+    status = models.CharField(max_length=10, choices=ATTENDANCE_STATUS, default='present', verbose_name="Davomat")
     score = models.PositiveIntegerField(null=True, blank=True, verbose_name="Baho")
     comment = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         unique_together = ('lesson', 'student')
+
+    @staticmethod
+    def stats_for(queryset, date=None):
+        qs = queryset.filter(lesson__date=date) if date else queryset
+        stats = qs.aggregate(
+            total=models.Count('id'),
+            present=models.Count('id', filter=models.Q(status='present')),
+            absent=models.Count('id', filter=models.Q(status='absent')),
+            late=models.Count('id', filter=models.Q(status='late')),
+        )
+        percent = round((stats['present'] / stats['total'] * 100) if stats['total'] else 0, 1)
+        return {**stats, 'percent': percent}
 
 class Payment(models.Model):
     PAYMENT_STATUS = (

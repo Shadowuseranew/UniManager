@@ -1,9 +1,9 @@
 from rest_framework import viewsets, permissions
-from .models import Subject, Classroom, Group, Student, Timetable, Grade, Attendance, Enrollment, Payment, Exam, StudyMaterial, Notification
+from .models import Subject, Classroom, Group, Student, Timetable, Grade, Enrollment, Payment, Exam, StudyMaterial, Notification
 from .serializers import (
     SubjectSerializer, ClassroomSerializer, GroupSerializer,
     StudentSerializer, TimetableSerializer, GradeSerializer,
-    AttendanceSerializer, PaymentSerializer, ExamSerializer,
+    PaymentSerializer, ExamSerializer,
     StudyMaterialSerializer, NotificationSerializer
 )
 
@@ -41,11 +41,6 @@ class TimetableViewSet(viewsets.ModelViewSet):
 class GradeViewSet(viewsets.ModelViewSet):
     queryset = Grade.objects.all()
     serializer_class = GradeSerializer
-    permission_classes = [IsAdminOrReadOnly]
-
-class AttendanceViewSet(viewsets.ModelViewSet):
-    queryset = Attendance.objects.all()
-    serializer_class = AttendanceSerializer
     permission_classes = [IsAdminOrReadOnly]
 
 class PaymentViewSet(viewsets.ModelViewSet):

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Subject, Classroom, Group, Student, Timetable, Grade, Attendance, Enrollment, Payment, Exam, StudyMaterial, Notification
+from .models import Subject, Classroom, Group, Student, Timetable, Grade, Enrollment, Payment, Exam, StudyMaterial, Notification
 
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
@@ -36,11 +36,6 @@ class TimetableSerializer(serializers.ModelSerializer):
 class GradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Grade
-        fields = '__all__'
-
-class AttendanceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Attendance
         fields = '__all__'
 
 class PaymentSerializer(serializers.ModelSerializer):

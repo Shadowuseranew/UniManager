@@ -21,14 +21,14 @@ class User(AbstractUser):
     def dashboard_context(self):
         from django.utils import timezone
         from django.db.models import Avg, Count, Q
-        from academy.models import Subject, Student, Enrollment, Grade, Attendance, Timetable, Group, Payment
+        from academy.models import Subject, Student, Enrollment, Grade, JournalGrade, Timetable, Group, Payment
 
         today = timezone.localdate()
         ctx = {}
 
         if self.role == 'admin':
-            att_stats = Attendance.stats_for(Attendance.objects.all())
-            today_att = Attendance.stats_for(Attendance.objects.all(), date=today)
+            att_stats = JournalGrade.stats_for(JournalGrade.objects.all())
+            today_att = JournalGrade.stats_for(JournalGrade.objects.all(), date=today)
             ctx.update({
                 'students_count': User.objects.filter(role='student').count(),
                 'teachers_count': User.objects.filter(role='teacher').count(),
@@ -45,7 +45,7 @@ class User(AbstractUser):
         elif self.role == 'teacher':
             my_groups = Group.objects.filter(teacher=self)
             my_lessons = Timetable.objects.filter(teacher=self)
-            att_stats = Attendance.stats_for(Attendance.objects.filter(timetable__teacher=self))
+            att_stats = JournalGrade.stats_for(JournalGrade.objects.filter(lesson__timetable__teacher=self))
             ctx.update({
                 'my_groups_count': my_groups.count(),
                 'my_subjects_count': Subject.objects.filter(groups__teacher=self).distinct().count(),

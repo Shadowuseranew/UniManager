@@ -19,7 +19,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for p in payments %}
+                {% for p in page_obj %}
                 <tr>
                     <td>{{ p.student.get_full_name }}</td>
                     <td>{{ p.amount }} so'm</td>
@@ -37,5 +37,6 @@
             </tbody>
         </table>
     </div>
+    {% include 'includes/_pagination.html' %}
 </div>
 {% endblock %}

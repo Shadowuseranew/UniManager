@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Subject, Student, Enrollment, Grade, Attendance, Timetable, Classroom, Group, LessonJournal, JournalGrade, Payment, StudyMaterial, Exam, Notification, Holiday, Semester, ChatMessage
+from django.core.paginator import Paginator
+from .models import Subject, Student, Enrollment, Grade, Timetable, Classroom, Group, LessonJournal, JournalGrade, Payment, StudyMaterial, Exam, Notification, Holiday, Semester, ChatMessage
 from .forms import SubjectForm, TimetableForm, ClassroomForm, GroupForm, PaymentForm, ExamForm, StudyMaterialForm, NotificationForm, SemesterForm
 from .chat_assistant import Assistant
 from .audit_logger import log_action
@@ -407,19 +408,20 @@ def journal_view(request, lesson_id):
     enrollments = Enrollment.objects.filter(subject=lesson.subject).select_related('student')
     
     if request.method == "POST":
+        lesson_date = request.POST.get('lesson_date') or lesson.date or timezone.now().date()
+        journal_entry, _ = LessonJournal.objects.update_or_create(
+            timetable=lesson,
+            date=lesson_date,
+            defaults={'topic': f"Davomat {lesson_date}"}
+        )
         for en in enrollments:
             student_id = en.student.id
-            
-            # 1. Davomatni saqlash
-            status = request.POST.get(f'attendance_{student_id}')
-            Attendance.objects.update_or_create(
+            status = request.POST.get(f'attendance_{student_id}', 'present')
+            JournalGrade.objects.update_or_create(
+                lesson=journal_entry,
                 student=en.student,
-                timetable=lesson,
-                date=request.POST.get('lesson_date'), # Sanani formadan olamiz
                 defaults={'status': status}
             )
-            
-            # 2. Bahoni saqlash (ixtiyoriy)
             score = request.POST.get(f'grade_{student_id}')
             if score:
                 Grade.objects.update_or_create(
@@ -427,14 +429,16 @@ def journal_view(request, lesson_id):
                     subject=lesson.subject,
                     defaults={'score': score, 'teacher': request.user}
                 )
-        
         return redirect('dashboard')
 
     default_date = lesson.date or timezone.now().date()
-    attendance_records = Attendance.objects.filter(timetable=lesson, date=default_date)
-    att_map = {a.student_id: a.status for a in attendance_records}
+    journal_entry = LessonJournal.objects.filter(timetable=lesson, date=default_date).first()
+    if journal_entry:
+        jg_records = {jg.student_id: jg.status for jg in journal_entry.grades.all()}
+    else:
+        jg_records = {}
     for en in enrollments:
-        en.attendance_status = att_map.get(en.student.id, 'present')
+        en.attendance_status = jg_records.get(en.student.id, 'present')
     return render(request, 'academy/journal.html', {
         'lesson': lesson,
         'enrollments': enrollments,
@@ -536,11 +540,14 @@ def grade_journal(request, uuid):
     # Ushbu fanga yozilgan barcha talabalarni guruhlari bilan olish
     enrollments = Enrollment.objects.filter(subject=subject).select_related('student', 'student__student_profile')
 
+    grade_map = {}
+    for g in Grade.objects.filter(subject=subject, student_id__in=enrollments.values_list('student_id', flat=True)):
+        grade_map[g.student_id] = g.score
+
     if request.method == "POST":
         for key, value in request.POST.items():
             if key.startswith('grade_') and value:
                 student_id = key.replace('grade_', '')
-                # update_or_create: bor bo'lsa yangilaydi, yo'q bo'lsa yaratadi
                 Grade.objects.update_or_create(
                     student_id=student_id,
                     subject=subject,
@@ -551,7 +558,8 @@ def grade_journal(request, uuid):
 
     return render(request, 'academy/grade_journal.html', {
         'subject': subject,
-        'enrollments': enrollments
+        'enrollments': enrollments,
+        'grade_map': grade_map,
     })
 
 @login_required
@@ -613,7 +621,9 @@ def payment_list(request):
         payments = Payment.objects.filter(student=request.user)
     else:
         return redirect('dashboard')
-    return render(request, 'academy/payment_list.html', {'payments': payments})
+    paginator = Paginator(payments, 20)
+    page_obj = paginator.get_page(request.GET.get('page', 1))
+    return render(request, 'academy/payment_list.html', {'page_obj': page_obj})
 
 @login_required
 @admin_only
@@ -642,7 +652,9 @@ def exam_list(request):
         exams = Exam.objects.filter(group__students=request.user.student_profile)
     else:
         return redirect('dashboard')
-    return render(request, 'academy/exam_list.html', {'exams': exams})
+    paginator = Paginator(exams, 20)
+    page_obj = paginator.get_page(request.GET.get('page', 1))
+    return render(request, 'academy/exam_list.html', {'page_obj': page_obj})
 
 @login_required
 @admin_only
@@ -792,7 +804,7 @@ def calendar_view(request):
     elif request.user.role == 'student':
         try:
             base = Timetable.objects.filter(group__in=request.user.student_profile.groups.all())
-        except:
+        except AttributeError:
             base = Timetable.objects.none()
     group_id = request.GET.get('group')
     if group_id:

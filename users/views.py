@@ -4,6 +4,7 @@ import string
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
+from django.core.paginator import Paginator
 from django.urls import reverse
 from .models import User, TeacherProfile
 from .forms import UserCreationForm, AdminAddForm, TeacherAddForm, StudentAddForm, ParentAddForm
@@ -225,11 +226,26 @@ def user_list(request):
     students = [u for u in users_list if u.role == 'student']
     parents = [u for u in users_list if u.role == 'parent']
     
+    # 5. Har bir rol uchun alohida pagination (20 tadan)
+    per_page = 20
+    paginator_admins = Paginator(admins, per_page)
+    paginator_teachers = Paginator(teachers, per_page)
+    paginator_students = Paginator(students, per_page)
+    paginator_parents = Paginator(parents, per_page)
+    admins_page = paginator_admins.get_page(request.GET.get('admins_page', 1))
+    teachers_page = paginator_teachers.get_page(request.GET.get('teachers_page', 1))
+    students_page = paginator_students.get_page(request.GET.get('students_page', 1))
+    parents_page = paginator_parents.get_page(request.GET.get('parents_page', 1))
+    
     # Filtrda ko'rsatish uchun barcha guruhlarni olamiz
     from academy.models import Group
     all_groups = Group.objects.all()
 
     context = {
+        'admins_page': admins_page,
+        'teachers_page': teachers_page,
+        'students_page': students_page,
+        'parents_page': parents_page,
         'admins': admins,
         'teachers': teachers,
         'students': students,

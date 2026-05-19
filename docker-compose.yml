@@ -20,7 +20,7 @@ services:
     environment:
       POSTGRES_DB: uni_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: parolingiz
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:

@@ -41,7 +41,6 @@ def _create_user_with_password(form, role):
     user.role = role
     user.username = _generate_username(user.first_name or '', user.last_name or '')
     user.set_password(raw_password)
-    user.login_password = raw_password
     user.save()
     form.save_m2m()
     return user, raw_password
@@ -151,7 +150,6 @@ def user_edit(request, uuid):
             raw_password = form.cleaned_data.get('password')
             if raw_password:
                 user.set_password(raw_password)
-                user.login_password = raw_password
             else:
                 user.password = original_password
             user.save()

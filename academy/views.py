@@ -4,7 +4,7 @@ from .models import Subject, Student, Enrollment, Grade, Attendance, Timetable, 
 from .forms import SubjectForm, TimetableForm, ClassroomForm, GroupForm, PaymentForm, ExamForm, StudyMaterialForm, NotificationForm, SemesterForm
 from .chat_assistant import Assistant
 from .audit_logger import log_action
-from users.decorators import admin_only, parent_only, admin_or_teacher
+from users.decorators import admin_only, parent_only, admin_or_teacher, student_only
 from users.forms import StudentAddForm, TeacherAddForm, AdminAddForm
 from django.utils import timezone
 from datetime import time, timedelta
@@ -168,11 +168,8 @@ def timetable_view(request):
     return render(request, 'academy/timetable.html', ctx)
 
 @login_required
+@admin_only
 def timetable_add(request):
-    if request.user.role != 'admin' and not request.user.is_staff:
-        messages.error(request, "Sizda dars qo'shish huquqi yo'q!")
-        return redirect('timetable_view')
-
     if request.method == "POST":
         # DIQQAT: LessonForm emas, TimetableForm ishlatamiz
         form = TimetableForm(request.POST) 
@@ -207,11 +204,8 @@ DAYS_OF_WEEK_LIST = [
 ]
 
 @login_required
+@admin_only
 def timetable_batch_add(request):
-    if request.user.role != 'admin' and not request.user.is_staff:
-        messages.error(request, "Sizda huquq yo'q!")
-        return redirect('timetable_view')
-
     groups = Group.objects.all()
     subjects = Subject.objects.all()
     teachers = User.objects.filter(role='teacher')
@@ -257,11 +251,8 @@ def timetable_batch_add(request):
     })
 
 @login_required
+@admin_only
 def timetable_semester_generate(request):
-    if request.user.role != 'admin' and not request.user.is_staff:
-        messages.error(request, "Sizda huquq yo'q!")
-        return redirect('timetable_view')
-
     groups = Group.objects.all()
     subjects = Subject.objects.all()
     teachers = User.objects.filter(role='teacher')
@@ -351,13 +342,10 @@ def timetable_semester_generate(request):
 
 # 3. Darsni tahrirlash (Edit)
 @login_required
+@admin_only
 def timetable_edit(request, pk):
     lesson = get_object_or_404(Timetable, pk=pk)
     
-    if request.user.role != 'admin' and not request.user.is_staff:
-        messages.error(request, "Sizda tahrirlash huquqi yo'q!")
-        return redirect('timetable_view')
-
     if request.method == "POST":
         form = TimetableForm(request.POST, instance=lesson)
         if form.is_valid():
@@ -377,11 +365,8 @@ def timetable_edit(request, pk):
 
 # 4. Darsni o'chirish (Delete)
 @login_required
+@admin_only
 def timetable_delete(request, pk):
-    if request.user.role != 'admin' and not request.user.is_staff:
-        messages.error(request, "Sizda o'chirish huquqi yo'q!")
-        return redirect('timetable_view')
-
     lesson = get_object_or_404(Timetable, pk=pk)
     if request.method == "POST":
         log_action(request, 'delete', 'Timetable', lesson, f"Dars o'chirildi: {lesson.subject.name}")
@@ -391,6 +376,7 @@ def timetable_delete(request, pk):
     return redirect('timetable_view')
 
 @login_required
+@admin_or_teacher
 def grade_students(request, subject_id):
     subject = get_object_or_404(Subject, pk=subject_id)
     # Ushbu fanga yozilgan talabalar
@@ -414,6 +400,7 @@ def grade_students(request, subject_id):
     })
 
 @login_required
+@admin_or_teacher
 def journal_view(request, lesson_id):
     lesson = get_object_or_404(Timetable, pk=lesson_id)
     # Ushbu fanga yozilgan talabalar
@@ -469,9 +456,8 @@ def parent_student_detail(request, uuid):
     })
 
 @login_required
+@admin_or_teacher
 def classroom_list(request):
-    if request.user.role == 'student':
-        return redirect('dashboard')
     rooms = Classroom.objects.all()
     return render(request, 'academy/classroom_list.html', {'rooms': rooms})
 
@@ -523,12 +509,8 @@ def group_list(request):
     return render(request, 'academy/group_list.html', {'groups': groups})
 
 @login_required
-# @admin_only  <-- Agar dekoratoringiz bo'lsa, pastdagi if-check shart emas
+@admin_only
 def group_add(request):
-    # Xavfsizlik tekshiruvi (dekorator bo'lmasa, shu holatda qoladi)
-    if request.user.role != 'admin':
-        messages.error(request, "Sizda ushbu amalni bajarish uchun ruxsat yo'q.")
-        return redirect('group_list') # Forbidden o'rniga redirect qilish yaxshiroq UX
     
     if request.method == "POST":
         form = GroupForm(request.POST)
@@ -548,6 +530,7 @@ def group_add(request):
     })
 
 @login_required
+@admin_or_teacher
 def grade_journal(request, uuid):
     subject = get_object_or_404(Subject, uuid=uuid)
     # Ushbu fanga yozilgan barcha talabalarni guruhlari bilan olish
@@ -571,6 +554,8 @@ def grade_journal(request, uuid):
         'enrollments': enrollments
     })
 
+@login_required
+@admin_or_teacher
 def group_detail(request, uuid):
     group = get_object_or_404(Group, uuid=uuid)
     students = group.students.all().select_related('user')
@@ -681,10 +666,8 @@ def semester_list(request):
     return render(request, 'academy/semester_list.html', {'semesters': semesters})
 
 @login_required
+@admin_only
 def semester_add(request):
-    if request.user.role != 'admin' and not request.user.is_staff:
-        messages.error(request, "Sizda huquq yo'q!")
-        return redirect('timetable_view')
     if request.method == "POST":
         form = SemesterForm(request.POST)
         if form.is_valid():
@@ -702,9 +685,8 @@ def material_list(request):
     return render(request, 'academy/material_list.html', {'materials': materials})
 
 @login_required
+@admin_or_teacher
 def material_add(request):
-    if request.user.role == 'student':
-        return redirect('dashboard')
     if request.method == "POST":
         form = StudyMaterialForm(request.POST, request.FILES)
         if form.is_valid():
@@ -719,9 +701,8 @@ def material_add(request):
     return render(request, 'academy/material_form.html', {'form': form})
 
 @login_required
+@admin_or_teacher
 def material_delete(request, pk):
-    if request.user.role == 'student':
-        return redirect('material_list')
     material = get_object_or_404(StudyMaterial, pk=pk, uploaded_by=request.user) if request.user.role != 'admin' else get_object_or_404(StudyMaterial, pk=pk)
     if request.method == "POST":
         log_action(request, 'delete', 'StudyMaterial', material, f"Material o'chirildi: {material.title}")
@@ -731,19 +712,16 @@ def material_delete(request, pk):
     return render(request, 'academy/material_confirm_delete.html', {'material': material})
 
 @login_required
-@login_required
+@admin_or_teacher
 def notification_list(request):
-    if request.user.role == 'student':
-        return redirect('dashboard')
     received = Notification.objects.filter(recipient=request.user)
     sent = Notification.objects.filter(sender=request.user).exclude(recipient=request.user)
     notifications = (received | sent).order_by('-created_at')
     return render(request, 'academy/notification_list.html', {'notifications': notifications})
 
 @login_required
+@admin_or_teacher
 def notification_send(request):
-    if request.user.role not in ('admin', 'teacher'):
-        return redirect('dashboard')
     is_teacher = request.user.role == 'teacher'
     if request.method == "POST":
         title = request.POST.get('title')
@@ -827,6 +805,7 @@ def calendar_view(request):
     })
 
 @login_required
+@admin_or_teacher
 def export_grades(request, uuid):
     subject = get_object_or_404(Subject, uuid=uuid)
     enrollments = Enrollment.objects.filter(subject=subject).select_related('student', 'student__student_profile')
@@ -893,6 +872,7 @@ def timetable_list(request):
     })
 
 @login_required
+@admin_or_teacher
 def fill_journal(request, timetable_id):
     timetable = get_object_or_404(Timetable, id=timetable_id)
     # Ushbu guruhdagi barcha talabalarni olamiz
@@ -926,9 +906,8 @@ def fill_journal(request, timetable_id):
     })
 
 @login_required
+@student_only
 def chat_assistant(request):
-    if request.user.role != 'student':
-        return redirect('dashboard')
     assistant = Assistant(request.user)
     
     if request.method == "POST":
